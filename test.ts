@@ -1,3 +1,4 @@
+import { VuexActionHandler } from "./types/actions"
 import { VuexGetter } from "./types/getters"
 import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
 import { VuexMutationHandler } from "./types/mutations"
@@ -13,6 +14,11 @@ enum FooMutations {
   Removed = "removed",
 }
 
+enum FooActions {
+  Refresh = "refresh",
+  Load = "load",
+}
+
 enum BarMutations {
   Fizz = "fizz",
   Buzz = "buzz",
@@ -26,6 +32,11 @@ enum BazMutations {
 type FooMutationTree = {
   [FooMutations.Added]: VuexMutationHandler<FooState, string>
   [FooMutations.Removed]: VuexMutationHandler<FooState, number>
+}
+
+type FooActionsTree = {
+  [FooActions.Refresh]: VuexActionHandler<FooModule, never, Promise<void>, MyStore>,
+  [FooActions.Load]: VuexActionHandler<FooModule, string[], Promise<string[]>, MyStore>,
 }
 
 type FooGettersTree = {
@@ -88,8 +99,31 @@ store.replaceState({
     }
 })
 
+store.getters['anotherFoo/first'];
+
 // getters with backreference
 let fooGetters: FooGettersTree = {
   first: state => state.list[0], // state is correctly typed
   firstCapitalized: (_, getters) => getters.first.toUpperCase(), // getters too!
+}
+
+let fooActions: FooActionsTree = {
+  async load(context, payload): Promise<string[]> {
+    // context is bound to this module
+    // and payload is properly typed!
+    context.commit(FooMutations.Added, payload[0]);
+    const list = context.state.list;
+
+    // we can however access root state
+    const bar = context.rootState.bar; // typeof bar = BarState;
+
+    // ... and getters
+    const global = context.rootGetters.global;
+    const first = context.rootGetters['anotherFoo/first'];
+
+    return [];
+  },
+  async refresh(context) {
+    // simple eacions to not require return type!
+  }
 }

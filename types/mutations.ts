@@ -38,15 +38,16 @@ export type VuexModuleOwnCommits<TModule extends VuexModule, TPrefix extends str
   }[keyof TModule["mutations"]]>
   ;
 
-export type VuexModuleCommit<TModule extends VuexModule, TPrefix extends string = never> 
+export type VuexCommit<TModule extends VuexModule, TPrefix extends string = never> 
   = VuexModuleOwnCommits<TModule, TPrefix>
   & VuexCommitOfModules<TModule["modules"], TPrefix>
+  & ((mutation: VuexMutations<TModule>, options?: VuexCommitOptions) => void);
   ;
 
 export type VuexCommitByModule<TModules extends VuexModulesTree, TPrefix extends string = never> 
   = { 
     [TKey in keyof TModules]: 
-      VuexModuleCommit<
+      VuexCommit<
         TModules[TKey], 
         AddPrefix<TModules[TKey] extends NamespacedVuexModule ? (string & TKey) : never, TPrefix>
       > 

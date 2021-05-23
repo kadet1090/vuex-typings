@@ -6,7 +6,7 @@ export type BaseVuexModule<
   TState extends {} = {},
   TMutations extends VuexMutationsTree = VuexMutationsTree,
   TActions extends VuexActionsTree = VuexActionsTree,
-  TGetters extends VuexActionsTree = VuexGettersTree,
+  TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = {},
 > = {
     state: TState;
@@ -20,7 +20,7 @@ export type NamespacedVuexModule<
   TState extends {} = {},
   TMutations extends VuexMutationsTree = VuexMutationsTree,
   TActions extends VuexActionsTree = VuexActionsTree,
-  TGetters extends VuexActionsTree = VuexGettersTree,
+  TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = {},
 > = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace: true }
 
@@ -28,7 +28,7 @@ export type GlobalVuexModule<
   TState extends {} = {},
   TMutations extends VuexMutationsTree = VuexMutationsTree,
   TActions extends VuexActionsTree = VuexActionsTree,
-  TGetters extends VuexActionsTree = VuexGettersTree,
+  TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = {},
 > = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace?: false };
 
@@ -36,7 +36,7 @@ export type VuexModule<
   TState extends {} = {},
   TMutations extends VuexMutationsTree = VuexMutationsTree,
   TActions extends VuexActionsTree = VuexActionsTree,
-  TGetters extends VuexActionsTree = VuexGettersTree,
+  TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = {},
 > = GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>
   | NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>

@@ -32,9 +32,9 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
        - [ ] From submodules
          - [ ] Global 
          - [ ] Namespaced
-     - [ ] Action handler `VuexActionHandler<TState, TPayload = never, TResult = Promise<void>>`
-       - [ ] Action Context `VuexActionContext<TModule, TStoreDefinition = any>` 
-       - [ ] Properly type `this` in handler (store backref)
+     - [x] Action handler `VuexActionHandler<TModule, TPayload = never, TResult = Promise<void>>`
+       - [x] Action Context `VuexActionContext<TModule, TStoreDefinition = any>` 
+       - [x] Properly type `this` in handler (store backref)
      - [ ] Dispatch type `VuexDispatch<TModule>`
        - [ ] Payload `VuexActionPayload<TModule, TAction>`
        - [ ] Result `VuexActionResult<TModule, TAction>`
