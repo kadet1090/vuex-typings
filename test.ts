@@ -1,8 +1,7 @@
-import { VuexGetter, VuexGetters, VuexOwnGetters } from "./types/getters"
+import { VuexGetter } from "./types/getters"
 import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
-import { VuexCommitByModule, VuexMutationHandler, VuexMutations, VuexOwnMutations } from "./types/mutations"
-import { VuexState } from "./types/state"
-import { createStore, VuexStore } from "./types/store"
+import { VuexMutationHandler } from "./types/mutations"
+import { createStore } from "./types/store"
 
 // example store definition
 type FooState = { list: string[] }
@@ -30,7 +29,8 @@ type FooMutationTree = {
 }
 
 type FooGettersTree = {
-  all: VuexGetter<FooModule, string>
+  first: VuexGetter<FooModule, string>
+  firstCapitalized: VuexGetter<FooModule, string>,
 }
 
 type BarMutationTree = {
@@ -88,4 +88,8 @@ store.replaceState({
     }
 })
 
-type Debug = VuexGetters<MyStore>;
+// getters with backreference
+let fooGetters: FooGettersTree = {
+  first: state => state.list[0], // state is correctly typed
+  firstCapitalized: (_, getters) => getters.first.toUpperCase(), // getters too!
+}
