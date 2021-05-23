@@ -1,11 +1,11 @@
 import { AddPrefix, UnionToIntersection } from "./helpers";
 import { NamespacedVuexModule, VuexModule, VuexModulesTree } from "./modules";
-import { VuexStoreDefinition } from "./store";
+import { VuexStore, VuexStoreDefinition } from "./store";
 
-export type VuexMutationHandler<TState, TPayload = never> 
+export type VuexMutationHandler<TState, TPayload = never, TStore extends VuexStore<any> = never> 
   = [TPayload] extends [never] 
-  ? (state: TState) => void
-  : (state: TState, payload: TPayload) => void
+  ? (this: TStore, state: TState) => void
+  : (this: TStore, state: TState, payload: TPayload) => void
   ;
 
 export type VuexMutationsTree 

@@ -1,5 +1,5 @@
 import { VuexActionsTree } from "./actions";
-import { VuexGettersTree } from "./getters";
+import { VuexGetters, VuexGettersTree } from "./getters";
 import { GlobalVuexModule, VuexModulesTree } from "./modules";
 import { VuexCommitOptions, VuexModuleCommit, VuexMutations, VuexMutationsTree } from "./mutations";
 import { VuexState } from "./state";
@@ -20,6 +20,8 @@ export type VuexStoreDefinition<
 export type VuexStore<TDefinition extends VuexStoreDefinition> 
   = {
     commit: VuexModuleCommit<TDefinition> & ((mutation: VuexMutations<TDefinition>, options?: VuexCommitOptions) => void);
+    getters: VuexGetters<TDefinition>;
+
     replaceState(state: VuexState<TDefinition>): void;
   }
   ;

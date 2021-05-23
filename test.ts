@@ -30,7 +30,7 @@ type FooMutationTree = {
 }
 
 type FooGettersTree = {
-  all: VuexGetter<FooState, string[]>
+  all: VuexGetter<FooModule, string>
 }
 
 type BarMutationTree = {

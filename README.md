@@ -17,8 +17,8 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
        - [x] From submodules
          - [x] Global 
          - [x] Namespaced
-     - [x] Mutation handler type `VuexMutationHandler<TState, TPayload = never>`
-       - [ ] Properly type `this` in handler (store backref)
+     - [x] Mutation handler type `VuexMutationHandler<TState, TPayload = never, TStore = never>`
+       - [x] Properly type `this` in handler (store backref)
      - [x] Commit types
        - [ ] ~~Payload `VuexMutationPayload<TModule, TMutation>`~~ Type is too deep
        - [x] Argument-Style `VuexCommit<TModule>`
@@ -42,18 +42,18 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
        - [ ] Object-Style `VuexAction<TModule>`
        - [ ] Dispatch Options `VuexDispatchOptions`
          - [ ] Support `{ root: true }`
-   - [ ] Getters `TGetters extends VuexGettersTree`
+   - [x] Getters `TGetters extends VuexGettersTree`
      - [x] Non-type-safe fallback `VuexGettersTree` ??
      - [x] Available getters `VuexGetters<TModule>`
        - [x] Own `VuexOwnGetters<TModule>`
        - [x] From submodules
          - [x] Global 
          - [x] Namespaced
-     - [x] Getter type `VuexGetter<TState, TResult>`
-       - [ ] Support for beckreferencing getters
+     - [x] Getter type `VuexGetter<TModule, TResult>`
+       - [x] Support for beckreferencing getters
      - [x] Result `VuexGetterResult<TModule, TGetter>`
    - [x] Submodules `TModules extends VuexModulesTree`
- - [ ] Store Definition `VuexStoreDefinition<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}, TPlugins = {}>`
+ - [x] Store Definition `VuexStoreDefinition<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}, TPlugins = {}>`
    - Basically `VuexGlobalModule` with additional things
    - [ ] Plugins `VuexPlugin<TStoreDefinition>`
    - [x] Simple properties (`devtools`, etc.)
@@ -62,7 +62,7 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
      - [ ] Store Options `VuexStoreOptions<TDefinition>`
    - [x] State (as defined by TStoreDefinition)
      - [x] Replace state `replaceState` 
-   - [ ] Getters (as defined by TStoreDefinition)
+   - [x] Getters (as defined by TStoreDefinition)
    - [x] Commit (as defined by TStoreDefinition)
    - [ ] Dispatch (as defined by TStoreDefinition)
    - [ ] Subscribers

@@ -1,11 +1,12 @@
 import { AddPrefix, UnionToIntersection } from "./helpers";
 import { NamespacedVuexModule, VuexModule, VuexModulesTree } from "./modules";
+import { VuexState } from "./state";
 
 export type VuexGettersTree
-  = { [name: string]: VuexGetter<any, any>; }
+  = { [name: string]: VuexGetter<any, any, any>; }
 
-export type VuexGetter<TState extends {}, TResult> 
-  = (state: TState) => TResult
+export type VuexGetter<TModule extends VuexModule, TResult, TGetters = VuexGetters<TModule>> 
+  = (state: VuexState<TModule>, getters: TGetters) => TResult
 
 export type VuexOwnGetters<TModule extends VuexModule, TPrefix extends string = never>
   = { [TGetter in keyof TModule["getters"] as `${AddPrefix<string & TGetter, TPrefix>}`]: ReturnType<TModule["getters"][TGetter]> }
