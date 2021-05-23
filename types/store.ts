@@ -1,7 +1,7 @@
-import { VuexActionsTree } from "./actions";
+import { VuexActionsTree, VuexDispatch } from "./actions";
 import { VuexGetters, VuexGettersTree } from "./getters";
 import { GlobalVuexModule, VuexModulesTree } from "./modules";
-import { VuexCommitOptions, VuexCommit as VuexCommit, VuexMutations, VuexMutationsTree } from "./mutations";
+import { VuexCommitOptions, VuexCommit as VuexCommit, VuexMutations, VuexMutationsTree, VuexArgumentStyleCommit, VuexObjectStyleCommit } from "./mutations";
 import { VuexState } from "./state";
 
 export type VuexPlugin<TStore extends VuexStoreDefinition> = (store: TStore) => any;
@@ -22,7 +22,8 @@ export type VuexStoreDefinition<
 
 export type VuexStore<TDefinition extends VuexStoreDefinition> 
   = {
-    commit: VuexCommit<TDefinition>;
+    commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
+    dispatch: VuexDispatch<TDefinition>;
     getters: VuexGetters<TDefinition>;
 
     replaceState(state: VuexState<TDefinition>): void;

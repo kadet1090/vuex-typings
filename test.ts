@@ -1,7 +1,8 @@
-import { VuexActionHandler } from "./types/actions"
+import { VuexActionHandler, VuexArgumentStyleDispatch, VuexArgumentStyleDispatchByModules, VuexArgumentStyleDispatchModules, VuexArgumentStyleDispatchOwn } from "./types/actions"
 import { VuexGetter } from "./types/getters"
+import { UnionToIntersection } from "./types/helpers"
 import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
-import { VuexMutationHandler } from "./types/mutations"
+import { VuexArgumentStyleCommit, VuexMutationHandler } from "./types/mutations"
 import { createStore } from "./types/store"
 
 // example store definition
@@ -54,9 +55,9 @@ type BazMutationTree = {
   [BazMutations.Dec]: VuexMutationHandler<BazState, number>;
 }
 
-type FooModule = NamespacedVuexModule<FooState, FooMutationTree, {}, FooGettersTree, { sub: BazModule }>;
-type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
-type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
+type FooModule = NamespacedVuexModule<FooState, FooMutationTree, FooActionsTree, FooGettersTree, { sub: BazModule }>;
+type BarModule = GlobalVuexModule<BarState, BarMutationTree, {}, {}, {}>;
+type BazModule = NamespacedVuexModule<BazState, BazMutationTree, {}, {}, {}>;
 
 type MyStore = {
   state: {
@@ -78,6 +79,10 @@ let store = createStore<MyStore>({} as any)
 // should check and auto complete
 store.commit("foo/added", "test"); 
 store.commit({ type: "foo/added", payload: "test" }); 
+
+// dispatch works too!
+store.dispatch("anotherFoo/load", ["test"]);
+store.dispatch({ type: "anotherFoo/load", payload: ["test"] });
 
 // should check correctly
 store.replaceState({
@@ -112,13 +117,16 @@ let fooActions: FooActionsTree = {
     // context is bound to this module
     // and payload is properly typed!
     context.commit(FooMutations.Added, payload[0]);
+    
+    context.dispatch(FooActions.Load, payload);
+    context.dispatch(FooActions.Refresh);
+
     const list = context.state.list;
 
     // we can however access root state
     const bar = context.rootState.bar; // typeof bar = BarState;
 
     // ... and getters
-    const global = context.rootGetters.global;
     const first = context.rootGetters['anotherFoo/first'];
 
     return [];

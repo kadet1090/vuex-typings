@@ -27,20 +27,20 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
          - [ ] Support `{ root: true }`
    - [ ] Actions `TActions extends VuexActionsTree`
      - [x] Non-type-safe fallback `VuexActionsTree` ??
-     - [ ] Available actions `VuexActions<TModule>`
-       - [ ] Own `VuexOwnActions<TModule>`
-       - [ ] From submodules
-         - [ ] Global 
-         - [ ] Namespaced
+     - [x] Available actions `VuexActions<TModule>`
+       - [x] Own `VuexOwnActions<TModule>`
+       - [x] From submodules
+         - [x] Global 
+         - [x] Namespaced
      - [x] Action handler `VuexActionHandler<TModule, TPayload = never, TResult = Promise<void>>`
        - [x] Action Context `VuexActionContext<TModule, TStoreDefinition = any>` 
        - [x] Properly type `this` in handler (store backref)
-     - [ ] Dispatch type `VuexDispatch<TModule>`
+     - [x] Dispatch type `VuexDispatch<TModule>`
        - [ ] Payload `VuexActionPayload<TModule, TAction>`
        - [ ] Result `VuexActionResult<TModule, TAction>`
-       - [ ] Argument-Style
-       - [ ] Object-Style `VuexAction<TModule>`
-       - [ ] Dispatch Options `VuexDispatchOptions`
+       - [x] Argument-Style
+       - [x] Object-Style `VuexAction<TModule>`
+       - [x] Dispatch Options `VuexDispatchOptions`
          - [ ] Support `{ root: true }`
    - [x] Getters `TGetters extends VuexGettersTree`
      - [x] Non-type-safe fallback `VuexGettersTree` ??
@@ -64,7 +64,7 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
      - [x] Replace state `replaceState` 
    - [x] Getters (as defined by TStoreDefinition)
    - [x] Commit (as defined by TStoreDefinition)
-   - [ ] Dispatch (as defined by TStoreDefinition)
+   - [x] Dispatch (as defined by TStoreDefinition)
    - [ ] Subscribers
      - [ ] Options `SubscribeOptions` 
      - [ ] Actions `subscribeAction`
