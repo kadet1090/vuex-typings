@@ -1,37 +1,45 @@
+import { VuexActionsTree } from "./actions";
+import { VuexGettersTree } from "./getters";
 import { VuexMutationsTree } from "./mutations";
 
-export type VuexModule<
-  TNamespaced extends boolean,
-  TState extends {},
-  TMutations extends VuexMutationsTree, 
-  TModules extends VuexModulesTree
+export type BaseVuexModule<
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TActions extends VuexActionsTree = VuexActionsTree,
+  TGetters extends VuexActionsTree = VuexGettersTree,
+  TModules extends VuexModulesTree = {},
 > = {
     state: TState;
     mutations: TMutations;
     modules: TModules;
-  } & (
-    TNamespaced extends true
-    ? { namespaced: true } 
-    : { namespaced?: false }
-  );
-
-export type VuexModulesTree 
-  = { 
-    [name: string]: VuexModule<any, any, any, any> 
+    actions: TActions;
+    getters: TGetters;
   }
-  ;
 
 export type NamespacedVuexModule<
-  TState extends {},
-  TMutations extends VuexMutationsTree, 
-  TModules extends VuexModulesTree
-> = VuexModule<true, TState, TMutations, TModules>
-  ;
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TActions extends VuexActionsTree = VuexActionsTree,
+  TGetters extends VuexActionsTree = VuexGettersTree,
+  TModules extends VuexModulesTree = {},
+> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace: true }
 
 export type GlobalVuexModule<
-  TState extends {},
-  TMutations extends VuexMutationsTree, 
-  TModules extends VuexModulesTree
-> = VuexModule<false, TState, TMutations, TModules>
-  ;
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TActions extends VuexActionsTree = VuexActionsTree,
+  TGetters extends VuexActionsTree = VuexGettersTree,
+  TModules extends VuexModulesTree = {},
+> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace?: false };
 
+export type VuexModule<
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TActions extends VuexActionsTree = VuexActionsTree,
+  TGetters extends VuexActionsTree = VuexGettersTree,
+  TModules extends VuexModulesTree = {},
+> = GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>
+  | NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>
+
+export type VuexModulesTree 
+  = { [name: string]: VuexModule }

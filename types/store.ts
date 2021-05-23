@@ -1,23 +1,26 @@
+import { VuexActionsTree } from "./actions";
+import { VuexGettersTree } from "./getters";
 import { GlobalVuexModule, VuexModulesTree } from "./modules";
 import { VuexCommitOptions, VuexModuleCommit, VuexMutations, VuexMutationsTree } from "./mutations";
 import { VuexState } from "./state";
 
 export type VuexStoreDefinition<
-  TState extends {},
-  TMutations extends VuexMutationsTree, 
-  TModules extends VuexModulesTree
-> = Omit<GlobalVuexModule<TState, TMutations, TModules>, "namespaced">
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TActions extends VuexActionsTree = VuexActionsTree,
+  TModules extends VuexModulesTree = VuexModulesTree,
+> = Omit<GlobalVuexModule<TState, TMutations, TActions, TModules>, "namespaced">
   & {
     strict?: boolean,
     devtools?: boolean,
   }
   ;
 
-export type VuexStore<TDefinition extends VuexStoreDefinition<any, any, any>> 
+export type VuexStore<TDefinition extends VuexStoreDefinition> 
   = {
     commit: VuexModuleCommit<TDefinition> & ((mutation: VuexMutations<TDefinition>, options?: VuexCommitOptions) => void);
     replaceState(state: VuexState<TDefinition>): void;
   }
   ;
 
-export declare function createStore<TDefinition extends VuexStoreDefinition<any, any, any>>(definition: TDefinition): VuexStore<TDefinition>;
+export declare function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;

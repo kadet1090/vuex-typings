@@ -1,5 +1,5 @@
 import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
-import { VuexMutationHandler } from "./types/mutations"
+import { VuexCommitByModule, VuexMutationHandler, VuexMutations, VuexOwnMutations } from "./types/mutations"
 import { VuexState } from "./types/state"
 import { createStore, VuexStore } from "./types/store"
 
@@ -38,9 +38,9 @@ type BazMutationTree = {
   [BazMutations.Dec]: VuexMutationHandler<BazState, number>;
 }
 
-type FooModule = NamespacedVuexModule<FooState, FooMutationTree, { sub: BazModule }>;
-type BarModule = GlobalVuexModule<BarState, BarMutationTree, {}>;
-type BazModule = NamespacedVuexModule<BazState, BazMutationTree, {}>;
+type FooModule = NamespacedVuexModule<FooState, FooMutationTree, {}, {}, { sub: BazModule }>;
+type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
+type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
 
 type MyStore = {
   state: {
@@ -51,7 +51,9 @@ type MyStore = {
     bar: BarModule,
     anotherFoo: FooModule,
   },
-  mutations: {}
+  mutations: {},
+  getters: {},
+  actions: {},
 }
 
 // test

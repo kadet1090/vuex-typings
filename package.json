@@ -1,0 +1,10 @@
+{
+  "name": "vuex-typings",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:kadet1090/vuex-typings.git",
+  "author": "Kacper Donat <kadet1090@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+  }
+}

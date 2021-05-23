@@ -1,0 +1,6 @@
+{
+    "compilerOptions": {
+        "extendedDiagnostics": true,
+        "traceResolution": true,
+    }
+}

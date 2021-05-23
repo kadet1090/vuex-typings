@@ -29,7 +29,7 @@ export type VuexArgumentStyleCommit<TMutation, TPayload>
   : (mutation: TMutation, payload: TPayload, options?: VuexCommitOptions) => void
   ;
 
-export type VuexModuleOwnCommits<TModule extends VuexModule<any, any, any, any>, TPrefix extends string = never> 
+export type VuexModuleOwnCommits<TModule extends VuexModule, TPrefix extends string = never> 
   = UnionToIntersection<{ 
     [TMutation in keyof TModule["mutations"]]: VuexArgumentStyleCommit<
       AddPrefix<string & TMutation, TPrefix>,
@@ -38,7 +38,7 @@ export type VuexModuleOwnCommits<TModule extends VuexModule<any, any, any, any>,
   }[keyof TModule["mutations"]]>
   ;
 
-export type VuexModuleCommit<TModule extends VuexModule<any, any, any, any>, TPrefix extends string = never> 
+export type VuexModuleCommit<TModule extends VuexModule, TPrefix extends string = never> 
   = VuexModuleOwnCommits<TModule, TPrefix>
   & VuexCommitOfModules<TModule["modules"], TPrefix>
   ;
@@ -48,7 +48,7 @@ export type VuexCommitByModule<TModules extends VuexModulesTree, TPrefix extends
     [TKey in keyof TModules]: 
       VuexModuleCommit<
         TModules[TKey], 
-        AddPrefix<TModules[TKey] extends NamespacedVuexModule<any, any, any> ? (string & TKey) : never, TPrefix>
+        AddPrefix<TModules[TKey] extends NamespacedVuexModule ? (string & TKey) : never, TPrefix>
       > 
   }
   ;
@@ -61,7 +61,7 @@ export type VuexMutation<TName extends string, TPayload = never>
   = { type: TName } 
   & ([TPayload] extends [never] ? { } : { payload: TPayload })
 
-export type VuexOwnMutations<TModule extends VuexModule<any, any, any, any>, TPrefix extends string = never>
+export type VuexOwnMutations<TModule extends VuexModule, TPrefix extends string = never>
   = { 
     [TMutation in keyof TModule["mutations"]]: VuexMutation<
       AddPrefix<string & TMutation, TPrefix>,
@@ -69,12 +69,12 @@ export type VuexOwnMutations<TModule extends VuexModule<any, any, any, any>, TPr
     >
   }[keyof TModule["mutations"]]
 
-export type VuexMutations<TModule extends VuexModule<any, any, any, any>, TPrefix extends string = never>
+export type VuexMutations<TModule extends VuexModule<any, any, any, any, any>, TPrefix extends string = never>
   = VuexOwnMutations<TModule, TPrefix>
   | { 
     [TSubModule in keyof TModule["modules"]]: 
       VuexMutations<
         TModule["modules"][TSubModule], 
-        AddPrefix<TModule["modules"][TSubModule] extends NamespacedVuexModule<any, any, any> ? (string & TSubModule) : never, TPrefix>
+        AddPrefix<TModule["modules"][TSubModule] extends NamespacedVuexModule ? (string & TSubModule) : never, TPrefix>
       > 
   }[keyof TModule["modules"]];
