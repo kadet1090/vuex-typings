@@ -53,7 +53,7 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
        - [x] Support for beckreferencing getters
      - [x] Result `VuexGetterResult<TModule, TGetter>`
    - [x] Submodules `TModules extends VuexModulesTree`
- - [x] Store Definition `VuexStoreDefinition<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}, TPlugins = {}>`
+ - [ ] Store Definition `VuexStoreDefinition<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}, TPlugins = {}>`
    - Basically `VuexGlobalModule` with additional things
    - [ ] Plugins `VuexPlugin<TStoreDefinition>`
    - [x] Simple properties (`devtools`, etc.)
