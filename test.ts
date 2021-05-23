@@ -1,6 +1,7 @@
-import { GlobalVuexModule, NamespacedVuexModule } from "./modules"
-import { VuexMutationHandler } from "./mutations"
-import { createStore, VuexStore } from "./store"
+import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
+import { VuexMutationHandler } from "./types/mutations"
+import { VuexState } from "./types/state"
+import { createStore, VuexStore } from "./types/store"
 
 // example store definition
 type FooState = { list: string[] }
@@ -37,11 +38,14 @@ type BazMutationTree = {
   [BazMutations.Dec]: VuexMutationHandler<BazState, number>;
 }
 
-type FooModule = NamespacedVuexModule<FooMutationTree, { sub: BazModule }>;
-type BarModule = GlobalVuexModule<BarMutationTree, {}>;
-type BazModule = NamespacedVuexModule<BazMutationTree, {}>;
+type FooModule = NamespacedVuexModule<FooState, FooMutationTree, { sub: BazModule }>;
+type BarModule = GlobalVuexModule<BarState, BarMutationTree, {}>;
+type BazModule = NamespacedVuexModule<BazState, BazMutationTree, {}>;
 
 type MyStore = {
+  state: {
+      global: string;
+  },
   modules: {
     foo: FooModule,
     bar: BarModule,
@@ -53,5 +57,26 @@ type MyStore = {
 // test
 let store = createStore<MyStore>({} as any)
 
+// should check and auto complete
 store.commit("foo/added", "test"); 
 store.commit({ type: "foo/added", payload: "test" }); 
+
+// should check correctly
+store.replaceState({
+    global: "test",
+    foo: {
+        list: [],
+        sub: {
+            current: 0
+        }
+    },
+    anotherFoo: {
+        list: [],
+        sub: {
+            current: 0
+        }
+    },
+    bar: {
+        result: "fizzbuzz"
+    }
+})

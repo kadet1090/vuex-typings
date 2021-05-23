@@ -6,10 +6,10 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
  - [ ] Modules 
    - [x] Global `VuexGlobalModule<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}>`
    - [x] Namespaced `VuexNamespacedModule<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}>`
-   - [ ] State `TState`
-     - [ ] State helper `VuexState<TModule>`
-       - [ ] Own `VuexOwnState<TModule>`
-       - [ ] From submodules
+   - [x] State `TState`
+     - [x] State helper `VuexState<TModule>`
+       - [x] Own `VuexOwnState<TModule>`
+       - [x] From submodules
    - [x] Mutations `TMutations extends VuexMutationsTree`
      - [x] Non-type-safe fallback `VuexMutationsTree` ??
      - [x] Available mutations `VuexMutations<TModule>`
@@ -55,12 +55,12 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
  - [ ] Store Definition `VuexStoreDefinition<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}, TPlugins = {}>`
    - Basically `VuexGlobalModule` with additional things
    - [ ] Plugins `VuexPlugin<TStoreDefinition>`
-   - [ ] Simple properties (`devtools`, etc.)
+   - [x] Simple properties (`devtools`, etc.)
  - [ ] Store instance `VuexStore<TStoreDefinition>`
    - [ ] Constructor
      - [ ] Store Options `VuexStoreOptions<TDefinition>`
-   - [ ] State (as defined by TStoreDefinition)
-     - [ ] Replace state `replaceState` 
+   - [x] State (as defined by TStoreDefinition)
+     - [x] Replace state `replaceState` 
    - [ ] Getters (as defined by TStoreDefinition)
    - [x] Commit (as defined by TStoreDefinition)
    - [ ] Dispatch (as defined by TStoreDefinition)

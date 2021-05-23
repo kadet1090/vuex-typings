@@ -21,3 +21,10 @@ export type UndefinedToOptional<TValue extends {}>
   = Omit<TValue, OptionalPropertyNames<TValue>>
   & MakeOptional<TValue, OptionalPropertyNames<TValue>>
   ;
+
+export type Partial<TValue> 
+  = TValue extends {} 
+  ? {
+    [TKey in keyof TValue]?: Partial<TValue[TKey]>
+  } 
+  : TValue
