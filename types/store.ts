@@ -8,8 +8,9 @@ export type VuexStoreDefinition<
   TState extends {} = {},
   TMutations extends VuexMutationsTree = VuexMutationsTree,
   TActions extends VuexActionsTree = VuexActionsTree,
+  TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = VuexModulesTree,
-> = Omit<GlobalVuexModule<TState, TMutations, TActions, TModules>, "namespaced">
+> = Omit<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>, "namespaced">
   & {
     strict?: boolean,
     devtools?: boolean,

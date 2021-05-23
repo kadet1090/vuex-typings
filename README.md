@@ -26,7 +26,7 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
        - [x] Commit options `VuexCommitOptions`
          - [ ] Support `{ root: true }`
    - [ ] Actions `TActions extends VuexActionsTree`
-     - [ ] Non-type-safe fallback `VuexActionsTree` ??
+     - [x] Non-type-safe fallback `VuexActionsTree` ??
      - [ ] Available actions `VuexActions<TModule>`
        - [ ] Own `VuexOwnActions<TModule>`
        - [ ] From submodules
@@ -43,15 +43,16 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
        - [ ] Dispatch Options `VuexDispatchOptions`
          - [ ] Support `{ root: true }`
    - [ ] Getters `TGetters extends VuexGettersTree`
-     - [ ] Non-type-safe fallback `VuexGettersTree` ??
-     - [ ] Available getters `VuexGetters<TModule>`
-       - [ ] Own `VuexOwnGetters<TModule>`
-       - [ ] From submodules
-         - [ ] Global 
-         - [ ] Namespaced
-     - [ ] Getter type `VuexGetter<TState, TResult>`
-     - [ ] Result `VuexGetterResult<TModule, TGetter>`
-   - [ ] Submodules `TModules extends VuexModulesTree`
+     - [x] Non-type-safe fallback `VuexGettersTree` ??
+     - [x] Available getters `VuexGetters<TModule>`
+       - [x] Own `VuexOwnGetters<TModule>`
+       - [x] From submodules
+         - [x] Global 
+         - [x] Namespaced
+     - [x] Getter type `VuexGetter<TState, TResult>`
+       - [ ] Support for beckreferencing getters
+     - [x] Result `VuexGetterResult<TModule, TGetter>`
+   - [x] Submodules `TModules extends VuexModulesTree`
  - [ ] Store Definition `VuexStoreDefinition<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}, TPlugins = {}>`
    - Basically `VuexGlobalModule` with additional things
    - [ ] Plugins `VuexPlugin<TStoreDefinition>`

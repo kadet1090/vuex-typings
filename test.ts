@@ -1,3 +1,4 @@
+import { VuexGetter, VuexGetters, VuexOwnGetters } from "./types/getters"
 import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
 import { VuexCommitByModule, VuexMutationHandler, VuexMutations, VuexOwnMutations } from "./types/mutations"
 import { VuexState } from "./types/state"
@@ -28,6 +29,10 @@ type FooMutationTree = {
   [FooMutations.Removed]: VuexMutationHandler<FooState, number>
 }
 
+type FooGettersTree = {
+  all: VuexGetter<FooState, string[]>
+}
+
 type BarMutationTree = {
   [BarMutations.Fizz]: VuexMutationHandler<BarState, number>;
   [BarMutations.Buzz]: VuexMutationHandler<BarState>;
@@ -38,7 +43,7 @@ type BazMutationTree = {
   [BazMutations.Dec]: VuexMutationHandler<BazState, number>;
 }
 
-type FooModule = NamespacedVuexModule<FooState, FooMutationTree, {}, {}, { sub: BazModule }>;
+type FooModule = NamespacedVuexModule<FooState, FooMutationTree, {}, FooGettersTree, { sub: BazModule }>;
 type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
 type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
 
@@ -82,3 +87,5 @@ store.replaceState({
         result: "fizzbuzz"
     }
 })
+
+type Debug = VuexGetters<MyStore>;
