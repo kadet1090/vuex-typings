@@ -4,6 +4,8 @@ import { GlobalVuexModule, VuexModulesTree } from "./modules";
 import { VuexCommitOptions, VuexModuleCommit, VuexMutations, VuexMutationsTree } from "./mutations";
 import { VuexState } from "./state";
 
+export type VuexPlugin<TStore extends VuexStoreDefinition> = (store: TStore) => any;
+
 export type VuexStoreDefinition<
   TState extends {} = {},
   TMutations extends VuexMutationsTree = VuexMutationsTree,
@@ -14,6 +16,7 @@ export type VuexStoreDefinition<
   & {
     strict?: boolean,
     devtools?: boolean,
+    plugins?: VuexPlugin<VuexStoreDefinition<TState, TMutations, TActions, TGetters, TModules>>[]
   }
   ;
 
