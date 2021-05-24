@@ -20,7 +20,7 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
      - [x] Mutation handler type `VuexMutationHandler<TState, TPayload = never, TStore = never>`
        - [x] Properly type `this` in handler (store backref)
      - [x] Commit types
-       - [ ] ~~Payload `VuexMutationPayload<TModule, TMutation>`~~ Type is too deep
+       - [ ] Payload `VuexMutationPayload<TModule, TMutation>`
        - [x] Argument-Style `VuexCommit<TModule>`
        - [x] Object-Style `VuexMutations<TModule>`
        - [x] Commit options `VuexCommitOptions`
@@ -58,8 +58,8 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
    - [x] Plugins `VuexPlugin<TStoreDefinition>`
    - [x] Simple properties (`devtools`, etc.)
  - [ ] Store instance `VuexStore<TStoreDefinition>`
-   - [ ] Constructor
-     - [ ] Store Options `VuexStoreOptions<TDefinition>`
+   - [x] Constructor
+     - [x] Store Options `VuexStoreDefinition`
    - [x] State (as defined by TStoreDefinition)
      - [x] Replace state `replaceState` 
    - [x] Getters (as defined by TStoreDefinition)
@@ -74,8 +74,8 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
          - [ ] Object `VuexActionSubscribersObject<TDefinition>`
      - [ ] Mutations `subscribe`
        - [ ] Subscriber `VuexMutationSubscriber<TDefinition>`
-   - [ ] Watch `watch`
-     - [ ] Options `WatchOptions`
+   - [x] Watch `watch`
+     - [x] ~~Options `WatchOptions`~~ should be imported from Vue
    - [ ] Dynamic module management
      - [ ] Registration `registerModule`
      - [ ] Unregistration `unregisterModule`

@@ -104,7 +104,14 @@ store.replaceState({
     }
 })
 
+// getters also work
 store.getters['anotherFoo/first'];
+
+// watch state is properly typed
+store.watch(state => state.global, (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
+
+// watch getters too!
+store.watch((_, getters) => getters['foo/first'], (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
 
 // getters with backreference
 let fooGetters: FooGettersTree = {
