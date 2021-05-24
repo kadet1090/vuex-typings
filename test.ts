@@ -113,6 +113,32 @@ store.watch(state => state.global, (value, oldValue) => value.toLowerCase() !== 
 // watch getters too!
 store.watch((_, getters) => getters['foo/first'], (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
 
+store.subscribe(mutation => {
+    // properly detects payload type based on mutaiton kind
+  if (mutation.type === "anotherFoo/sub/dec") {
+    const number = mutation.payload; // typeof number = number
+  } else if (mutation.type === "anotherFoo/added") {
+    const str = mutation.payload; // typeof str = string
+  }
+})
+
+store.subscribeAction((action, state) => {
+  // properly detects payload type based on action kind
+  if (action.type === "anotherFoo/load") {
+    const arr = action.payload; // typeof arr = string[]
+  }
+
+  // state is also correctly represented
+  const foo = state.foo.list;
+})
+
+// 
+store.subscribeAction({
+  after(action, state) { /* ... */ },
+  before(action, state) { /* ... */ },
+  error(action, state, error) { /* ... */ }
+})
+
 // getters with backreference
 let fooGetters: FooGettersTree = {
   first: state => state.list[0], // state is correctly typed

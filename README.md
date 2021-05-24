@@ -65,13 +65,13 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
    - [x] Getters (as defined by TStoreDefinition)
    - [x] Commit (as defined by TStoreDefinition)
    - [x] Dispatch (as defined by TStoreDefinition)
-   - [ ] Subscribers
+   - [x] Subscribers
      - [x] Options `VuexSubscribeOptions` 
-     - [ ] Actions `subscribeAction`
-       - [ ] Subscriber `VuexActionSubscriber<TDefinition>`
-         - [ ] Hook `VuexActionHook<?>`
-         - [ ] Error `VuexActionError<?>`
-         - [ ] Object `VuexActionSubscribersObject<TDefinition>`
+     - [x] Actions `subscribeAction`
+       - [x] Subscriber `VuexActionSubscriber<TDefinition>`
+         - [x] Callback `VuexActionSubscriberCallback<TDefinition>`
+         - [x] ErrorCallback `VuexActionErrorSubscriberCallback<TDefinition>`
+         - [x] Object `VuexActionSubscribersObject<TDefinition>`
      - [x] Mutations `subscribe`
        - [x] Subscriber `VuexMutationSubscriber<TDefinition>`
    - [x] Watch `watch`
