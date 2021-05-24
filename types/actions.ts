@@ -79,7 +79,10 @@ export type VuexDispatch<TModule extends VuexModule, TPrefix extends string = ne
 
 // todo: figure out how to get proper return value
 export type VuexObjectStyleDispatch<TModule extends VuexModule, TPrefix extends string = never>
-  = (action: VuexActions<TModule, TPrefix>, options?: VuexDispatchOptions) => any
+  = <TAction extends VuexActionTypes<TModule>>(
+      action: VuexActionByName<TModule, TAction, TPrefix>, 
+      options?: VuexDispatchOptions
+    ) => VuexActionResult<TModule, TAction, TPrefix>
 
 export type VuexArgumentStyleDispatch<TModule extends VuexModule, TPrefix extends string = never>
   = VuexArgumentStyleDispatchOwn<TModule, TPrefix>
@@ -105,3 +108,39 @@ export type VuexArgumentStyleDispatchByModules<TModules extends VuexModulesTree,
 
 export type VuexArgumentStyleDispatchModules<TModules extends VuexModulesTree, TPrefix extends string = never>
   = UnionToIntersection<VuexArgumentStyleDispatchByModules<TModules, TPrefix>[keyof TModules]>
+
+export type VuexActionTypes<TModule extends VuexModule, TPrefix extends string = never>
+  = VuexOwnActionTypes<TModule, TPrefix>
+  | VuexModulesActionTypes<TModule["modules"], TPrefix>
+
+export type VuexOwnActionTypes<TModule extends VuexModule, TPrefix extends string = never>
+  = AddPrefix<string & keyof TModule["actions"], TPrefix>
+
+export type VuexModulesActionTypes<TModules extends VuexModulesTree, TPrefix extends string = never>
+  = { 
+    [TModule in keyof TModules]:
+      VuexOwnActionTypes<
+        TModules[TModule], 
+        AddPrefix<TModules[TModule] extends NamespacedVuexModule ? (string & TModule) : never, TPrefix>
+      > 
+  }[keyof TModules]
+
+export type VuexActionByName<
+  TModule extends VuexModule, 
+  TAction extends VuexActionTypes<TModule>,
+  TPrefix extends string = never,
+> = Extract<VuexActions<TModule, TPrefix>, VuexAction<TAction, any>>
+
+export type VuexActionPayload<
+  TModule extends VuexModule, 
+  TMutation extends VuexActionTypes<TModule>,
+  TPrefix extends string = never,
+> = VuexActionByName<TModule, TMutation, TPrefix> extends VuexAction<TMutation, infer TPayload>
+  ? TPayload
+  : never
+
+export type VuexActionResult<
+  TModule extends VuexModule, 
+  TMutation extends VuexActionTypes<TModule>,
+  TPrefix extends string = never,
+> = ReturnType<Extract<VuexArgumentStyleDispatch<TModule, TPrefix>, (action: TMutation, ...args: any[]) => any>>

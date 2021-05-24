@@ -1,7 +1,7 @@
-import { VuexActionHandler, VuexArgumentStyleDispatch, VuexArgumentStyleDispatchByModules, VuexArgumentStyleDispatchModules, VuexArgumentStyleDispatchOwn } from "./types/actions"
+import { VuexActionHandler, VuexActionPayload, VuexActionResult, VuexArgumentStyleDispatch, VuexArgumentStyleDispatchByModules, VuexArgumentStyleDispatchModules, VuexArgumentStyleDispatchOwn } from "./types/actions"
 import { VuexGetter } from "./types/getters"
 import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
-import { VuexArgumentStyleCommit, VuexMutationHandler } from "./types/mutations"
+import { VuexArgumentStyleCommit, VuexMutationHandler, VuexMutationPayload, VuexMutationTypes } from "./types/mutations"
 import { createStore } from "./types/store"
 
 // example store definition
@@ -167,3 +167,10 @@ let fooActions: FooActionsTree = {
     // simple actions to not require return type!
   }
 }
+
+// utility types
+type PayloadOfFooAddedMutation = VuexMutationPayload<MyStore, "foo/added">; // string
+
+type PayloadOfFooLoadAction = VuexActionPayload<MyStore, "foo/load">; // string[]
+type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
+

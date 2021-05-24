@@ -15,6 +15,7 @@ export type VuexMutationHandlerPayload<TMutation extends VuexMutationHandler<any
   ? never 
   : Parameters<TMutation>[1]
 
+// Commit
 export interface VuexCommitOptions {
   silent?: boolean;
   root?: boolean;
@@ -79,3 +80,33 @@ export type VuexModulesMutations<TModules extends VuexModulesTree, TPrefix exten
         AddPrefix<TModules[TModule] extends NamespacedVuexModule ? (string & TModule) : never, TPrefix>
       > 
   }[keyof TModules]
+
+export type VuexMutationTypes<TModule extends VuexModule, TPrefix extends string = never>
+  = VuexOwnMutationTypes<TModule, TPrefix>
+  | VuexModulesMutationTypes<TModule["modules"], TPrefix>
+
+export type VuexOwnMutationTypes<TModule extends VuexModule, TPrefix extends string = never>
+  = AddPrefix<string & keyof TModule["mutations"], TPrefix>
+
+export type VuexModulesMutationTypes<TModules extends VuexModulesTree, TPrefix extends string = never>
+  = { 
+    [TModule in keyof TModules]:
+      VuexOwnMutationTypes<
+        TModules[TModule], 
+        AddPrefix<TModules[TModule] extends NamespacedVuexModule ? (string & TModule) : never, TPrefix>
+      > 
+  }[keyof TModules]
+
+export type VuexMutationByName<
+  TModule extends VuexModule, 
+  TMutation extends VuexMutationTypes<TModule>,
+  TPrefix extends string = never,
+> = Extract<VuexMutations<TModule, TPrefix>, VuexMutation<TMutation, any>>
+
+export type VuexMutationPayload<
+  TModule extends VuexModule, 
+  TMutation extends VuexMutationTypes<TModule>,
+  TPrefix extends string = never,
+> = VuexMutationByName<TModule, TMutation, TPrefix> extends VuexMutation<TMutation, infer TPayload>
+  ? TPayload
+  : never

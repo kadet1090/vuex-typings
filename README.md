@@ -3,7 +3,7 @@
 Proof of concept for usage of [template literal types] for vuex stores and modules. For now it supports nested (namespaced and not) modules and checking mutation `(name, payload)` pairs but for now allows only argument style commit function. 
 
 ## TODO
- - [ ] Modules 
+ - [x] Modules 
    - [x] Global `VuexGlobalModule<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}>`
    - [x] Namespaced `VuexNamespacedModule<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}>`
    - [x] State `TState`
@@ -20,12 +20,12 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
      - [x] Mutation handler type `VuexMutationHandler<TState, TPayload = never, TStore = never>`
        - [x] Properly type `this` in handler (store backref)
      - [x] Commit types
-       - [ ] Payload `VuexMutationPayload<TModule, TMutation>`
+       - [x] Payload `VuexMutationPayload<TModule, TMutation>`
        - [x] Argument-Style `VuexCommit<TModule>`
        - [x] Object-Style `VuexMutations<TModule>`
        - [x] Commit options `VuexCommitOptions`
          - [ ] Support `{ root: true }`
-   - [ ] Actions `TActions extends VuexActionsTree`
+   - [x] Actions `TActions extends VuexActionsTree`
      - [x] Non-type-safe fallback `VuexActionsTree` ??
      - [x] Available actions `VuexActions<TModule>`
        - [x] Own `VuexOwnActions<TModule>`
@@ -36,8 +36,8 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
        - [x] Action Context `VuexActionContext<TModule, TStoreDefinition = any>` 
        - [x] Properly type `this` in handler (store backref)
      - [x] Dispatch type `VuexDispatch<TModule>`
-       - [ ] Payload `VuexActionPayload<TModule, TAction>`
-       - [ ] Result `VuexActionResult<TModule, TAction>`
+       - [x] Payload `VuexActionPayload<TModule, TAction>`
+       - [x] Result `VuexActionResult<TModule, TAction>`
        - [x] Argument-Style
        - [x] Object-Style `VuexAction<TModule>`
        - [x] Dispatch Options `VuexDispatchOptions`
