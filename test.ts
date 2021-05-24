@@ -164,6 +164,6 @@ let fooActions: FooActionsTree = {
     return [];
   },
   async refresh(context) {
-    // simple eacions to not require return type!
+    // simple actions to not require return type!
   }
 }

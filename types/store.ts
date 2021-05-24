@@ -60,6 +60,13 @@ export type VuexStore<TDefinition extends VuexStoreDefinition>
 
     replaceState(state: VuexState<TDefinition>): void;
 
+    hotUpdate(options: {
+      actions?: VuexActionsTree,
+      mutations?: VuexMutationsTree,
+      getters?: VuexGettersTree,
+      modules?: VuexModulesTree,
+    }): void
+
     watch<T>(
       getter: VuexGetter<TDefinition, T>, 
       callback: (value: T, oldValue: T) => void, 

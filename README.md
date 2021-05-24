@@ -80,7 +80,7 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
      - [ ] Registration `registerModule`
      - [ ] Unregistration `unregisterModule`
      - [ ] Presence check `hasModule`
-   - [ ] Hot Update ??
+   - [x] Hot Update - it's not type safe so it's declared loosely
 
 
 
