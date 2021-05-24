@@ -1,20 +1,21 @@
 import { VuexActionsTree } from "./actions";
 import { VuexGettersTree } from "./getters";
+import { UndefinedToOptional } from "./helpers";
 import { VuexMutationsTree } from "./mutations";
 
 export type BaseVuexModule<
   TState extends {} = {},
   TMutations extends VuexMutationsTree = VuexMutationsTree,
-  TActions extends VuexActionsTree = VuexActionsTree,
-  TGetters extends VuexGettersTree = VuexGettersTree,
-  TModules extends VuexModulesTree = {},
-> = {
+  TActions extends VuexActionsTree = VuexActionsTree | undefined,
+  TGetters extends VuexGettersTree = VuexGettersTree | undefined,
+  TModules extends VuexModulesTree = {} | undefined,
+> = UndefinedToOptional<{
     state: TState;
     mutations: TMutations;
     modules: TModules;
     actions: TActions;
     getters: TGetters;
-  }
+  }>
 
 export type NamespacedVuexModule<
   TState extends {} = {},

@@ -1,8 +1,217 @@
 # Strong types for Vuex
 
-Proof of concept for usage of [template literal types] for vuex stores and modules. For now it supports nested (namespaced and not) modules and checking mutation `(name, payload)` pairs but for now allows only argument style commit function. 
+This project is a Proof of Concept for creating strongly typed Vuex Stores by utilizing [template literal types] feature available in typescript. End goal is to reimplement all [vuex types] for better type-checking and autocompletion without external modules.
 
-## TODO
+## Core idea
+The core idea for this set of types can be simply described as `type first`. You should start designing your store from contract, and your store should implement this contract - not the other way around. As from this package point of view the store is just a vuex module with extra stuff, and I will use word `store` to refer to both store and module.
+
+For example, simple counter store could be described as follows:
+
+```typescript
+type CounterState = { value: number }
+enum CounterMutations { Increment = "increment", Decrement = "decrement" }
+
+type CounterMutationsTree = {
+  [CounterMutations.Increment]: VuexMutationHandler<CounterState, number>, // number is payload
+  [CounterMutations.Decrement]: VuexMutationHandler<CounterState, number>,
+}
+
+// or you could write it like below, both syntaxes are equally valid
+type CounterMutationsTree = {
+  [CounterMutations.Increment](state: CounterState, payload: number): void,
+  [CounterMutations.Decrement](state: CounterState, payload: number): void,
+}
+
+type CounterModule = VuexGlobalModule<CounterState, CounterMutationsTree>
+// or
+type CounterModule = {
+  state: CounterState,
+  mutations: CounterMutationsTree
+}
+
+export const counter: CounterModule = { 
+  ... // will enforce proper types
+}
+```
+
+## Can I use it in my project?
+For now I concider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecesarily cumbersome to use. I plan to release it however as separate package ASAP and maybe try to start some RFC process on merging something like that into Vuex core.
+
+## Example
+This example is taken from the [test.ts](./test.ts) file and could be interactively tested using vscode or other editor with decent support of typescript language server.
+
+```typescript
+// example store definition
+type FooState = { list: string[] }
+type BarState = { result: string }
+type BazState = { current: number }
+
+enum FooMutations {
+  Added = "added",
+  Removed = "removed",
+}
+
+enum FooActions {
+  Refresh = "refresh",
+  Load = "load",
+}
+
+enum BarMutations {
+  Fizz = "fizz",
+  Buzz = "buzz",
+}
+
+enum BazMutations {
+  Inc = "inc",
+  Dec = "dec",
+}
+
+type FooMutationTree = {
+  [FooMutations.Added]: VuexMutationHandler<FooState, string>
+  [FooMutations.Removed]: VuexMutationHandler<FooState, number>
+}
+
+type FooActionsTree = {
+  [FooActions.Refresh]: VuexActionHandler<FooModule, never, Promise<void>, MyStore>,
+  [FooActions.Load]: VuexActionHandler<FooModule, string[], Promise<string[]>, MyStore>,
+}
+
+type FooGettersTree = {
+  first: VuexGetter<FooModule, string>
+  firstCapitalized: VuexGetter<FooModule, string>,
+}
+
+type BarMutationTree = {
+  [BarMutations.Fizz]: VuexMutationHandler<BarState, number>;
+  [BarMutations.Buzz]: VuexMutationHandler<BarState>;
+}
+
+type BazMutationTree = {
+  [BazMutations.Inc]: VuexMutationHandler<BazState, number>;
+  [BazMutations.Dec]: VuexMutationHandler<BazState, number>;
+}
+
+type FooModule = NamespacedVuexModule<FooState, FooMutationTree, FooActionsTree, FooGettersTree, { sub: BazModule }>;
+type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
+type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
+
+type MyStore = {
+  state: {
+    global: string;
+  },
+  modules: {
+    foo: FooModule,
+    bar: BarModule,
+    anotherFoo: FooModule,
+  },
+  mutations: {},
+  getters: {},
+  actions: {},
+}
+
+let store = createStore<MyStore>({} as any)
+
+// should check and auto complete
+store.commit("foo/added", "test");
+store.commit({ type: "foo/added", payload: "test" });
+
+// dispatch works too!
+store.dispatch("anotherFoo/load", ["test"]);
+store.dispatch({ type: "anotherFoo/load", payload: ["test"] });
+
+// should check correctly
+store.replaceState({
+  global: "test",
+  foo: {
+    list: [],
+    sub: {
+      current: 0
+    }
+  },
+  anotherFoo: {
+    list: [],
+    sub: {
+      current: 0
+    }
+  },
+  bar: {
+    result: "fizzbuzz"
+  }
+})
+
+// getters also work
+store.getters['anotherFoo/first'];
+
+// watch state is properly typed
+store.watch(state => state.global, (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
+
+// watch getters too!
+store.watch((_, getters) => getters['foo/first'], (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
+
+store.subscribe(mutation => {
+  // properly detects payload type based on mutaiton kind
+  if (mutation.type === "anotherFoo/sub/dec") {
+    const number = mutation.payload; // typeof number = number
+  } else if (mutation.type === "anotherFoo/added") {
+    const str = mutation.payload; // typeof str = string
+  }
+})
+
+store.subscribeAction((action, state) => {
+  // properly detects payload type based on action kind
+  if (action.type === "anotherFoo/load") {
+    const arr = action.payload; // typeof arr = string[]
+  }
+
+  // state is also correctly represented
+  const foo = state.foo.list;
+})
+
+// 
+store.subscribeAction({
+  after(action, state) { /* ... */ },
+  before(action, state) { /* ... */ },
+  error(action, state, error) { /* ... */ }
+})
+
+// getters with backreference
+let fooGetters: FooGettersTree = {
+  first: state => state.list[0], // state is correctly typed
+  firstCapitalized: (_, getters) => getters.first.toUpperCase(), // getters too!
+}
+
+let fooActions: FooActionsTree = {
+  async load(context, payload): Promise<string[]> {
+    // context is bound to this module
+    // and payload is properly typed!
+    context.commit(FooMutations.Added, payload[0]);
+
+    context.dispatch(FooActions.Load, payload);
+    context.dispatch(FooActions.Refresh);
+
+    const list = context.state.list;
+
+    // we can however access root state
+    const bar = context.rootState.bar; // typeof bar = BarState;
+
+    // ... and getters
+    const first = context.rootGetters['anotherFoo/first'];
+
+    return [];
+  },
+  async refresh(context) {
+    // simple actions to not require return type!
+  }
+}
+
+// utility types
+type PayloadOfFooAddedMutation = VuexMutationPayload<MyStore, "foo/added">; // string
+
+type PayloadOfFooLoadAction = VuexActionPayload<MyStore, "foo/load">; // string[]
+type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
+```
+
+## Progress
  - [x] Modules 
    - [x] Global `VuexGlobalModule<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}>`
    - [x] Namespaced `VuexNamespacedModule<TState, TMutations = {}, TActions = {}, TModules = {}, TGetters = {}>`
@@ -82,9 +291,8 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
      - [ ] Presence check `hasModule`
    - [x] Hot Update - it's not type safe so it's declared loosely
 
-
-
-## Typescript Playground (Demo) [outdated]
-[*click*](https://www.typescriptlang.org/play?#code/C4TwDgpgBAagrhAHgWQPYBM4BsIB4BQUUAKgHICGAthAM5jkDGE6USwEAdujVAEaqoc5DgBpCJZHGDlgAS1QcebTt1gIUUmfMXEAThAgio44mkw4lidlx7wkZ7LT0H8APigBeKAG9xRSppyCjQAXBKB2jQA3H5QlBiOoRIJFmJEAL5QAGRQABSxZFS09EwsyjZQwLoIsQD8PlAcRXSMzGFVCFCZsWHejc0lzLVhAGbkWDTQ6eIAlDH4oJBq9hEKABLC6Di6uMQAytLsRsQACuQgWKjkLF4cEABuELru4l4A2qfnl9cAuqxWKh4bzuj10f3E9VyNEOEDC+xhM087nuqFk6HEYShMLhBxkhig9AuV3QcLOROuiI8yNR6KI80W0DsGkOkWc0FeDViwKKYWhulkHAA5j8wkzJCz1pttrhhCAjLLXFFjBlxPTwIz1A4LGzlZ5OUQiNzqLyqgLhaLNSk8LL5Rw5VAFbrpnT8At1VAKNQWqUxVaCERTKtFP9rKoxUGaGyjCYtbQQ4DligrZH9BA3HrfeY8B18YGJYpjrGaK5Va6GVAAOKXXjjTOOf3hfOWUO2TURqO60zJ+MVOva1Pprx9vBjCa58VaYKF5Mll1upZMg6ofQAEQgIwFsiCHAbecnwfKYbbTY7Me7h9b9mTbMHUAA8pQt7gq6ga1hh7sJ9uaNOs8WjAARE0XqDOgAGztkPixHysgMMAwx8AIQiiLE6APMASE0LUPSIYIEDCGkXSlvO0AAKocNoxCoAAkhw7C6JMcHaLsLxEF4uTED2qiylAkKIHClLuDxYQgk8iIXnk-FQAKIxPFAABKgkOnaur1PJuoiQ8Txlu6ACC6DoCc+gboguwwOMnQSTBQrHEZ66yIgXE8NZgp6qJzy6u8pzGQ5fwScCWlgqpJDmVgnQYlAAAGAAk3jefZiDpAA9LFxChQg6SRcR5bhvmGxcNsZLfOgn5Bk5iZfto+VbE8Mp2raICuKxepnLoRT0TQpX5q4bwAIx+QCFRwFw9l3CwEKNIFGlQK17VPJ1e7bj1-XEUgYDLsA0l0U8YxMImADCqCUI+wB3mA35QUQNCyDgdEIfweHCDERC6AI8FhA9yExNMJEHUdJ1dfutlfMSzVeUVxIDS2UABaC4JEJCAT5nClUKEYhLFQhw1oRuY1GKg52RAhTKHcdW5nd+Skomi025Ej+4o0G6Mg9cpIs+g+OE8ExPqKTJ0U5EVM0tl7rDneADuHB81uC2xuVH42sp9oKrZPmOVZppCm5gVg1A5GUTR20MRATEKLgfRcot2hbVAADWEAgKgIzJFmbwAfT34AT8Ip-WTwANgaUD6YZau4C5kFW2jJB2SZriEYHuX7tVhXs5+Vpux7kRex8qMcD8EFEIq4jpG89uO87Xau+7EZe-nIsLpaWbS-7leOPLjf1orXd2nH0dq+V4e3DrnkVVaEtS-9Mtp1mqsJRBOQk5Pp0jEW0+OBnyZe7Psf1xqSDNwAQiAsZrxY7dXn+HbxSZA+a65Q+grrFuBx8ADSDs22XTsu4kPuxEQw5m4B0Dj-Cwb8HY-GjCAg0wcY4OVPrQcBIAoYJk9MUVo6AFb1SVu4SE4ccjEHfiAREmlQTbwcgXA0zVnRQDVA3feS87wr2TAg5sCZhwpgMOQ9Wg1VCD0mo-Ee+sFBUVoh1E225cCLz9kfE+rdUh9znqXB2395G0DrnOHK6glz6F2GuXGW5rYSUXBhVco1DFm27o1J+sQGBLwtBfRwQDiD6M3EtSCuQ6ZBgccyfcC1XEUSWpzb8PMGF+wFsEIWaIZjF13hVIMuw0G335DZaO7NtaCI5H0BkcIkndCIDkXIHwIa-HKrDJ4fx6h9EyL0Ak7M2bkhYOkGJv0mTj1zrLK058kxZjqsrbBKtFE3w1ik++AingQS8M-A0OcyoCjtioiusYM4129j43OwCiCwNDvgxsQMhkUPjgaRO25k5PBKSVNRKymzZ0jnnShEES5fyWenauNzvY6Xob478CDuknysQ1Xu18HLJLNBkiZHI2mSw6Qg7hEEAA++oZn7DgLwOW8znmgIgBvP8tcwj-3iU2TZBornu03j8D4exUWxkgbqaB2yEoIJxYkW5VK0VWhQRUNB3pmBYP6Y1XieRdkovZVmEh4zdBwoJdQ5R5csXMosLXOhe9vnaAubuOWxiO44D6Q1QFUC9nblBUKdMkLjx+IQe4LVKx8yA23EYGSclPiNOavUZ1xVpruWIklJK-wqBgBwFAaEy5oA4zcdoX6AAxAQuJ2B6j6FgWQ0ITSjLeH8aY5YD7kF0LG6AUyoD6BoNgYAKawUZvdFmgAXrm+NUAGBwF0PoOiIk4CUF4HJH6nBW1QGjagDpl0g4GWYHqAC1w0JgUIvJCA8RHg3CgABfQM7mAATEJ2jg3as26H7b4IgkbZCVsrSOjcB6V3iAPnAA9I7eAXsraetdG7yCVu3eIWiDAR0CgYKeoga431eAAmhT9q7PnQF7bnHUUzxBvFAxGAAdMHZgPsTlVSlLVXtuajAuQglBgQHSYNTqXegRD5rTkoZ2GhmERh11tohT9TN2awOpnjZBzduG90HqIzapOpHcCbvQ40Vt7bnjPRhix2D572PrKDGcnYvGYRF1oxWx9DGDBMcNFW3Dr6OOqslAVWqVa+NUcE0XNTSnYM-q07naTPHH0GYExM76wGe04a6V4bloEPzQfzB2PoRbeBhHU109IRc6Nbpc5WastZtV4FE151MRhvBBZiHRp9YW3MYI-OpoM3nEuOeQCAHReaB3xD-L0WIIwBBhFA1aI5NZdD+fo9V2IwhUDAAABZPF7ZV5zM9i6EUzsEXo0wfo+sqLQYAv1iBjYzNo0xeA8sFaLr9Nc16xlIYUOqgLM8oCZabDB19i2ANYGzdAEYw1TYcDrfoPEBW9HmKNdaxABWAkWJ3FYpquQw2BO0HCZ724Zg+Juy4u72hFs4E2sG-QeoGBXfYDd+bs3XC5ASw6HgsoWkQ4gDBuxftcgAXK6gJKY7l2AXYNCACcxjAY6x0vJHlR1RhDxwIQnQ6J11MaQz0nwAAJdAp0AA)
+## License
+MIT
 
 [template literal types]: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-1.html#template-literal-types
+[vuex types]: https://github.com/vuejs/vuex/blob/4.0/types/index.d.ts

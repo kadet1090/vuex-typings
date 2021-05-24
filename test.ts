@@ -1,8 +1,14 @@
-import { VuexActionHandler, VuexActionPayload, VuexActionResult, VuexArgumentStyleDispatch, VuexArgumentStyleDispatchByModules, VuexArgumentStyleDispatchModules, VuexArgumentStyleDispatchOwn } from "./types/actions"
-import { VuexGetter } from "./types/getters"
-import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
-import { VuexArgumentStyleCommit, VuexMutationHandler, VuexMutationPayload, VuexMutationTypes } from "./types/mutations"
-import { createStore } from "./types/store"
+import { 
+  createStore, 
+  GlobalVuexModule, 
+  NamespacedVuexModule, 
+  VuexActionHandler, 
+  VuexActionPayload, 
+  VuexActionResult, 
+  VuexGetter, 
+  VuexMutationHandler, 
+  VuexMutationPayload 
+} from "./types"
 
 // example store definition
 type FooState = { list: string[] }
@@ -60,7 +66,7 @@ type BazModule = NamespacedVuexModule<BazState, BazMutationTree, {}, {}, {}>;
 
 type MyStore = {
   state: {
-      global: string;
+    global: string;
   },
   modules: {
     foo: FooModule,
@@ -76,8 +82,8 @@ type MyStore = {
 let store = createStore<MyStore>({} as any)
 
 // should check and auto complete
-store.commit("foo/added", "test"); 
-store.commit({ type: "foo/added", payload: "test" }); 
+store.commit("foo/added", "test");
+store.commit({ type: "foo/added", payload: "test" });
 
 // dispatch works too!
 store.dispatch("anotherFoo/load", ["test"]);
@@ -85,22 +91,22 @@ store.dispatch({ type: "anotherFoo/load", payload: ["test"] });
 
 // should check correctly
 store.replaceState({
-    global: "test",
-    foo: {
-        list: [],
-        sub: {
-            current: 0
-        }
-    },
-    anotherFoo: {
-        list: [],
-        sub: {
-            current: 0
-        }
-    },
-    bar: {
-        result: "fizzbuzz"
+  global: "test",
+  foo: {
+    list: [],
+    sub: {
+      current: 0
     }
+  },
+  anotherFoo: {
+    list: [],
+    sub: {
+      current: 0
+    }
+  },
+  bar: {
+    result: "fizzbuzz"
+  }
 })
 
 // getters also work
@@ -113,7 +119,7 @@ store.watch(state => state.global, (value, oldValue) => value.toLowerCase() !== 
 store.watch((_, getters) => getters['foo/first'], (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
 
 store.subscribe(mutation => {
-    // properly detects payload type based on mutaiton kind
+  // properly detects payload type based on mutaiton kind
   if (mutation.type === "anotherFoo/sub/dec") {
     const number = mutation.payload; // typeof number = number
   } else if (mutation.type === "anotherFoo/added") {
@@ -149,7 +155,7 @@ let fooActions: FooActionsTree = {
     // context is bound to this module
     // and payload is properly typed!
     context.commit(FooMutations.Added, payload[0]);
-    
+
     context.dispatch(FooActions.Load, payload);
     context.dispatch(FooActions.Refresh);
 
