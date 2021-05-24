@@ -1,4 +1,4 @@
-import { VuexActionsTree, VuexDispatch } from "./actions";
+import { VuexActions, VuexActionsTree, VuexDispatch } from "./actions";
 import { VuexGetter, VuexGetters, VuexGettersTree } from "./getters";
 import { GlobalVuexModule, VuexModulesTree } from "./modules";
 import { VuexCommitOptions, VuexCommit as VuexCommit, VuexMutations, VuexMutationsTree, VuexArgumentStyleCommit, VuexObjectStyleCommit } from "./mutations";
@@ -21,6 +21,13 @@ export type VuexStoreDefinition<
 
 export type VuexWatchOptions = any; // should import WatchOptions from vue
 
+export type VuexSubscribeOptions = {
+  prepend?: boolean
+}
+
+export type VuexMutationSubscriber<TDefinition extends VuexStoreDefinition>
+  = (mutation: VuexMutations<TDefinition>) => any
+
 export type VuexStore<TDefinition extends VuexStoreDefinition> 
   = {
     constructor(definition: TDefinition);
@@ -36,6 +43,11 @@ export type VuexStore<TDefinition extends VuexStoreDefinition>
       callback: (value: T, oldValue: T) => void, 
       options?: VuexWatchOptions
     ): () => void;
+
+    subscribe(
+      mutation: VuexMutationSubscriber<TDefinition>,
+      options?: VuexSubscribeOptions
+    )
   }
 
 export declare function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;

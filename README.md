@@ -66,14 +66,14 @@ Proof of concept for usage of [template literal types] for vuex stores and modul
    - [x] Commit (as defined by TStoreDefinition)
    - [x] Dispatch (as defined by TStoreDefinition)
    - [ ] Subscribers
-     - [ ] Options `SubscribeOptions` 
+     - [x] Options `VuexSubscribeOptions` 
      - [ ] Actions `subscribeAction`
        - [ ] Subscriber `VuexActionSubscriber<TDefinition>`
          - [ ] Hook `VuexActionHook<?>`
          - [ ] Error `VuexActionError<?>`
          - [ ] Object `VuexActionSubscribersObject<TDefinition>`
-     - [ ] Mutations `subscribe`
-       - [ ] Subscriber `VuexMutationSubscriber<TDefinition>`
+     - [x] Mutations `subscribe`
+       - [x] Subscriber `VuexMutationSubscriber<TDefinition>`
    - [x] Watch `watch`
      - [x] ~~Options `WatchOptions`~~ should be imported from Vue
    - [ ] Dynamic module management
