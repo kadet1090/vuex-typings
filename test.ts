@@ -1,6 +1,5 @@
 import { VuexActionHandler, VuexArgumentStyleDispatch, VuexArgumentStyleDispatchByModules, VuexArgumentStyleDispatchModules, VuexArgumentStyleDispatchOwn } from "./types/actions"
 import { VuexGetter } from "./types/getters"
-import { UnionToIntersection } from "./types/helpers"
 import { GlobalVuexModule, NamespacedVuexModule } from "./types/modules"
 import { VuexArgumentStyleCommit, VuexMutationHandler } from "./types/mutations"
 import { createStore } from "./types/store"
