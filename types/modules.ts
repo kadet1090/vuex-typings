@@ -20,17 +20,17 @@ export type BaseVuexModule<
 export type NamespacedVuexModule<
   TState extends {} = {},
   TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
-  TActions extends VuexActionsTree<NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>> = VuexActionsTree,
-  TGetters extends VuexGettersTree = VuexGettersTree,
-  TModules extends VuexModulesTree = {},
+  TActions extends VuexActionsTree<NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>> = {} | undefined,
+  TGetters extends VuexGettersTree = {} | undefined,
+  TModules extends VuexModulesTree = {} | undefined,
 > = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace: true }
 
 export type GlobalVuexModule<
   TState extends {} = {},
   TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
-  TActions extends VuexActionsTree<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>> = VuexActionsTree,
-  TGetters extends VuexGettersTree = VuexGettersTree,
-  TModules extends VuexModulesTree = {},
+  TActions extends VuexActionsTree<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>> = {} | undefined,
+  TGetters extends VuexGettersTree = {} | undefined,
+  TModules extends VuexModulesTree = {} | undefined,
 > = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace?: false };
 
 export type VuexModule<

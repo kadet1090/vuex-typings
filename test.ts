@@ -6,13 +6,9 @@ import {
   VuexActionPayload, 
   VuexActionResult, 
   VuexGetter, 
-  VuexGettersTree, 
   VuexMutationHandler, 
   VuexMutationPayload, 
-  VuexMutationsTree, 
-  VuexStore
 } from "./types"
-import { Validate } from "./types/helpers"
 
 // example store definition
 type FooState = { list: string[] }
@@ -65,8 +61,8 @@ type BazMutationTree = {
 }
 
 type FooModule = NamespacedVuexModule<FooState, FooMutationTree, FooActionsTree, FooGettersTree, { sub: BazModule }>;
-type BarModule = GlobalVuexModule<BarState, BarMutationTree, {}, {}, {}>;
-type BazModule = NamespacedVuexModule<BazState, BazMutationTree, {}, {}, {}>;
+type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
+type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
 
 type MyStore = {
   state: {
@@ -76,10 +72,7 @@ type MyStore = {
     foo: FooModule,
     bar: BarModule,
     anotherFoo: FooModule,
-  },
-  mutations: {},
-  getters: {},
-  actions: {},
+  }
 }
 
 // test
