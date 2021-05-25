@@ -3,5 +3,8 @@
         "lib": ["ES2015"],
         "extendedDiagnostics": true,
         "traceResolution": true,
-    }
+        "noEmit": true,
+    },
+    "include": ["types/**/*.ts", "tests/**/*.ts"],
+    "exclude": ["node_modules/**/*"]
 }

@@ -7,8 +7,10 @@ import {
   VuexActionResult, 
   VuexGetter, 
   VuexMutationHandler, 
-  VuexMutationPayload, 
-} from "./types"
+  VuexMutationPayload,
+  VuexStoreDefinition, 
+} from "../types"
+import { Validate } from "../types/helpers"
 
 // example store definition
 type FooState = { list: string[] }
@@ -64,7 +66,7 @@ type FooModule = NamespacedVuexModule<FooState, FooMutationTree, FooActionsTree,
 type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
 type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
 
-type MyStore = {
+type MyStore = Validate<VuexStoreDefinition, {
   state: {
     global: string;
   },
@@ -72,8 +74,8 @@ type MyStore = {
     foo: FooModule,
     bar: BarModule,
     anotherFoo: FooModule,
-  }
-}
+  },
+}>
 
 // test
 let store = createStore<MyStore>({} as any)
@@ -153,6 +155,7 @@ let fooActions: FooActionsTree = {
     // and payload is properly typed!
     context.commit(FooMutations.Added, payload[0]);
 
+    // also works for actions
     context.dispatch(FooActions.Load, payload);
     context.dispatch(FooActions.Refresh);
 

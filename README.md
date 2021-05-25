@@ -1,8 +1,8 @@
 # Strong types for Vuex
 
-This project is a Proof of Concept for creating strongly typed Vuex Stores by utilizing [template literal types] feature available in typescript. End goal is to reimplement all [vuex types] for better type-checking and autocompletion without external modules.
+This project is a Proof of Concept for creating strongly typed Vuex Stores by utilizing [template literal types] feature available in typescript. End goal is to reimplement all [vuex types] for better type-checking and autocompletion without external modules. By convention this project prefixes all the Vuex related types with `Vuex`.
 
-## Core idea
+## Usage
 The core idea for this set of types can be simply described as `type first`. You should start designing your store from contract, and your store should implement this contract - not the other way around. As from this package point of view the store is just a vuex module with extra stuff, and I will use word `store` to refer to both store and module.
 
 For example, simple counter store could be described as follows:
@@ -34,11 +34,278 @@ export const counter: CounterModule = {
 }
 ```
 
-## Can I use it in my project?
-For now I concider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecesarily cumbersome to use. I plan to release it however as separate package ASAP and maybe try to start some RFC process on merging something like that into Vuex core.
+### Modules - `VuexModule`
+Modules are arguably the most important aspect of vuex, the store itself can be thought of as main module with some extra configurations - and this is in fact how store definition is typed by this project
 
-## Example
-This example is taken from the [test.ts](./test.ts) file and could be interactively tested using vscode or other editor with decent support of typescript language server.
+```typescript
+export type VuexModule<
+  TState extends {},
+  TMutations extends VuexMutationsTree,
+  TActions extends VuexActionsTree,
+  TGetters extends VuexGettersTree,
+  TModules extends VuexModulesTree
+> = GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>
+  | NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>
+```
+
+Namespaced modules differs in behavior from non-namespaced (global) modules - therefore there are in fact two different types: `GlobalVuexModule` and `NamespacedVuexModule`.
+
+```typescript
+export type NamespacedVuexModule<
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
+  TActions extends VuexActionsTree<NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>> = {} | undefined,
+  TGetters extends VuexGettersTree = {} | undefined,
+  TModules extends VuexModulesTree = {} | undefined,
+> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> 
+  & { namespaced: true } // Namespaced modules require to have namespaced option set to true
+
+export type GlobalVuexModule<
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
+  TActions extends VuexActionsTree<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>> = {} | undefined,
+  TGetters extends VuexGettersTree = {} | undefined,
+  TModules extends VuexModulesTree = {} | undefined,
+> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> 
+  & { namespaced?: false } // Global modules can either have no namespaced property or have it set as false
+```
+
+We can use both types to properly define required module contract
+
+```typescript
+type FooModule = NamespacedVuexModule<FooState, FooMutationsTree, FooActionsTree, FooGettersTree, { sub: BazModule }>
+
+// only used properties need to be set, others can be safely set to undefined
+type BarModule = GlobalVuexModule<BarState, BarMutationsTree>
+type FizzModule = GlobalVuexModule<FizzState, FizzMutationsTree, undefined, FizzGettersTree>
+
+// you can also use plain "object" type syntax if you prefer
+// this will work but won't tell you immediately that your contract is incompatible
+type BarModule = {
+  state: VuexStateProvider<BarState>,
+  mutations: BarMutationsTree
+}
+
+// now you can just implement your contract, and typescript will aid you
+const foo: FooModule = { /* ... */ }
+```
+
+### State
+State is the most straightforward aspect of module - it just represents data held in the store and basically can be any of type. 
+
+#### Full state
+However, full state also includes state of the modules, full state of the module can be obtained using `VuexState<TModule>`
+
+```typescript
+type SubModule  = NamespacedVuexModule<{ inner: number }, /* ... */>
+type RootModule = {
+  state: VuexStateProvider<{ root: string }>,
+  /* ... */,
+  modules: {
+    sub:
+  }
+}
+
+VuexState<RootModule> == { 
+  root: string,
+  sub: {
+    inner: number
+  }
+}
+```
+
+#### State provider
+State can be provider by value or by factory, therefore we require to type that accordingly. To simplify things,`VuexStateProvider<TState>` helper can be utilized:
+```typescript
+export type VuexStateProvider<TState>
+  = TState
+  | (() => TState)
+```
+
+To extract state from the provider, `VuexExtractState<TProvider>` can be used:
+```typescript
+VuexExtractState<VuexStateProvider<FooState>> == FooState
+```
+
+### Mutations
+Of course the state have to change somehow - that's what mutations do. All mutations available in given module are described by the `VuexMutationsTree` type. Mutation tree is just an keyed storage for mutation handlers described by `VuexMutationHandler`:
+
+```typescript
+export type VuexMutationsTree<TState = any, TDefinition extends VuexStoreDefinition = any>
+  = { [name: string]: VuexMutationHandler<TState, any, TDefinition>; }
+
+export type VuexMutationHandler<
+  TState, 
+  TPayload = never, 
+  TDefinition extends VuexStoreDefinition = any,
+>
+```
+
+Example of mutation tree definition:
+```typescript
+type FooMutations = {
+  added: VuexMutation<FooState, string>,
+  removed: VuexMutation<FooState, number>,
+}
+// or
+type FooMutations = {
+  added(state: FooState, payload: string): void;
+  removed(state: FooState, payload: number): void;
+}
+```
+
+If mutation requires access to the whole store, it can be typed using third generic argument of `VuexMutationHandler`:
+```typescript
+VuexMutation<FooState, string, StoreDefinition>
+// or
+(this: VuexStore<StoreDefinition>, state: FooState, payload: string): void;
+```
+
+Be careful when using this construct though, it is circular reference and can create infinite recursion in typescript if not used with caution.
+
+
+[It is common](https://next.vuex.vuejs.org/guide/mutations.html#using-constants-for-mutation-types) (and in my opinion recommended) for mutation types to be defined as code constants - and in typescript it's possible to use `enums` for that purpose:
+
+```typescript
+enum FooMutations {
+  Added = "added",
+  Removed = "removed",
+}
+```
+
+Then values of this enum can be used to key mutations tree type:
+```typescript
+type FooMutationTree = {
+  [FooMutations.Added]: VuexMutationHandler<FooState, string>
+  [FooMutations.Removed]: VuexMutationHandler<FooState, number>
+}
+```
+
+Implementation of mutations can be done simply by implementing the tree:
+```typescript
+// should ensure that everything is typed correctly
+const mutations: FooMutationTree = { /* ... */ }
+```
+
+Such well-defined mutations are then available from `commit` method of the store:
+
+```typescript
+type MyStore = {
+  state: { /* ... */ },
+  modules: {
+    foo: FooModule
+  }
+}
+
+let store = createStore<MyStore>(/* ... */)
+
+// should check types and provide code assistance
+store.commit("foo/added", "test");
+store.commit({ type: "foo/added", payload: "test" });
+```
+
+There also exists few utility types:
+ - `VuexMutationTypes<TModule>` - defines all possible mutation types, e.g. `VuexMutationTypes<MyStore> = "foo/added" | "foo/removed" | /* ... */`
+ - `VuexMutations<TModule>` - defines all possible mutations with payloads, e.g. `VuexMutations<MyStore> = { type: "foo/added", payload: string } | { type: foo/removed", payload: number } | /* ... */`
+ - `VuexMutationPayload<TModule, TMutation>` - extracts mutation payload by name, e.g. `VuexMutationPayload<MyStore, "foo/added"> = string`
+
+### Actions
+In principle, actions are very similar to mutations - the main difference is that they can be asynchronous and have return types. Actions make changes in the state by committing mutations, they can also dispatch another actions if needed. Oh, and in case of namespaced modules they are scoped to module.
+
+Action tree is described by the `VuexActionsTree` type, which itself (same as mutations tree case) is just an collection of action handles:
+
+```typescript
+export type VuexActionsTree<
+  TModule extends VuexModule = any, 
+  TDefinition extends VuexStoreDefinition = any
+> = { [name: string]: VuexActionHandler<TModule, any, any, TDefinition>; }
+
+export type VuexActionHandler<
+  TModule extends VuexModule, 
+  TPayload = never, 
+  TResult = Promise<void>,
+  TDefinition extends VuexStoreDefinition = any,
+>
+```
+
+Because actions can access basically everything from the module itself they need to have module back referenced - this can be a little bit tricky sometimes and can cause infinite recursion if not used with caution. However it should be fine in most cases.
+
+Let's reiterate on the `FooModule` example to better see how actions can be defined:
+```typescript
+enum FooMutations {
+  Added = "added",
+  Removed = "removed",
+}
+
+enum FooActions {
+  Refresh = "refresh",
+  Load = "load",
+}
+
+type FooState = { list: string[] }
+
+type FooMutationTree = {
+  [FooMutations.Added]: VuexMutationHandler<FooState, string, MyStore>
+  [FooMutations.Removed]: VuexMutationHandler<FooState, number, MyStore>
+}
+
+type FooActionsTree = {
+  // FooActions.Refresh is scoped to FooModule, does not need any payload, returns Promise<void> and is part of MyStore compatible store
+  [FooActions.Refresh]: VuexActionHandler<FooModule, never, Promise<void>, MyStore>,
+  // FooActions.Load is scoped to FooModule, does require array of strings as payload, returns Promise<string[]> and is part of MyStore compatible store
+  [FooActions.Load]: VuexActionHandler<FooModule, string[], Promise<string[]>, MyStore>,
+}
+
+type FooModule = NamespacedVuexModule<FooState, FooMutationTree, FooActionsTree>
+```
+
+Of course just like in mutations it is possible to use alternative function based syntax for handler definition - you will however need to make it compatible with requirements by yourself. Enums are also not required but I will stick with them in the rest of examples as I personally think that this is the most correct way.
+
+And again, just like mutations implementation can be done simply by implementing created action tree type:
+```typescript
+const actions: FooActionsTree = { /* ... */ }
+```
+
+Context (defined by `VuexActionContext<TModule>` type) that is passed to action handler should be typed correctly and scoped to passed module:
+
+```typescript
+const actions: FooActionsTree = {
+  async load(context, payload): Promise<string[]> {
+    // context is bound to this module
+    // and payload is properly typed!
+    context.commit(FooMutations.Added, payload[0]);
+
+    // also works for actions
+    context.dispatch(FooActions.Load, payload);
+    context.dispatch(FooActions.Refresh);
+
+    const list = context.state.list;
+
+    // we can however access root state
+    const bar = context.rootState.bar; // typeof bar = BarState;
+
+    // ... and getters
+    const first = context.rootGetters['anotherFoo/first'];
+
+    return [];
+  },
+  async refresh(context) {
+    // simple actions to not require return type!
+  }
+}
+```
+
+Again there also exists few utility types:
+ - `VuexActionTypes<TModule>` - defines all possible action types, e.g. `VuexActionTypes<MyStore> = "foo/load" | "foo/refresh" | /* ... */`
+ - `VuexActions<TModule>` - defines all possible actions with payloads, e.g. `VuexActions<MyStore> = { type: "foo/load", payload: string[] } | { type: "foo/refresh" } | /* ... */`
+ - `VuexActionPayload<TModule, TAction>` - extracts action payload by name, e.g. `VuexMutationPayload<MyStore, "foo/load"> = string[]`
+ - `VuexActionResult<TModule, TAction>` - extracts action result by name, e.g. `VuexMutationPayload<MyStore, "foo/load"> = Promise<string[]>`
+
+## Can I use it in my project?
+For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. I plan to release it however as separate package ASAP and maybe try to start some RFC process on merging something like that into Vuex core.
+
+## Full Example
+This example is taken from the [tests/basic.ts](./tests/basic.ts) file and could be interactively tested using vscode or other editor with decent support of typescript language server.
 
 ```typescript
 // example store definition

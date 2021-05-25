@@ -2,6 +2,7 @@ import { VuexActionsTree } from "./actions";
 import { VuexGettersTree } from "./getters";
 import { UndefinedToOptional } from "./helpers";
 import { VuexMutationsTree } from "./mutations";
+import { VuexStateProvider } from "./state";
 
 export type BaseVuexModule<
   TState extends {} = {},
@@ -10,7 +11,7 @@ export type BaseVuexModule<
   TGetters extends VuexGettersTree = VuexGettersTree | undefined,
   TModules extends VuexModulesTree = {} | undefined,
 > = UndefinedToOptional<{
-    state: TState;
+    state: VuexStateProvider<TState>;
     mutations: TMutations;
     modules: TModules;
     actions: TActions;
@@ -23,7 +24,8 @@ export type NamespacedVuexModule<
   TActions extends VuexActionsTree<NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>> = {} | undefined,
   TGetters extends VuexGettersTree = {} | undefined,
   TModules extends VuexModulesTree = {} | undefined,
-> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace: true }
+> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> 
+  & { namespaced: true }
 
 export type GlobalVuexModule<
   TState extends {} = {},
@@ -31,7 +33,8 @@ export type GlobalVuexModule<
   TActions extends VuexActionsTree<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>> = {} | undefined,
   TGetters extends VuexGettersTree = {} | undefined,
   TModules extends VuexModulesTree = {} | undefined,
-> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> & { namespace?: false };
+> = BaseVuexModule<TState, TMutations, TActions, TGetters, TModules> 
+  & { namespaced?: false }
 
 export type VuexModule<
   TState extends {} = {},
