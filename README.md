@@ -266,7 +266,7 @@ And again, just like mutations implementation can be done simply by implementing
 const actions: FooActionsTree = { /* ... */ }
 ```
 
-Context (defined by `VuexActionContext<TModule>` type) that is passed to action handler should be typed correctly and scoped to passed module:
+Context (defined by `VuexActionContext<TModule, TRoot>` type) that is passed to action handler should be typed correctly and scoped to passed module:
 
 ```typescript
 const actions: FooActionsTree = {
@@ -300,6 +300,42 @@ Again there also exists few utility types:
  - `VuexActions<TModule>` - defines all possible actions with payloads, e.g. `VuexActions<MyStore> = { type: "foo/load", payload: string[] } | { type: "foo/refresh" } | /* ... */`
  - `VuexActionPayload<TModule, TAction>` - extracts action payload by name, e.g. `VuexMutationPayload<MyStore, "foo/load"> = string[]`
  - `VuexActionResult<TModule, TAction>` - extracts action result by name, e.g. `VuexMutationPayload<MyStore, "foo/load"> = Promise<string[]>`
+
+### Getters
+Getters are, to put simply, just computer properties of state accessible by some key. Getters tree is described by the `VuexGettersTree` type, which itself is just an collection of getters:
+
+```typescript
+export type VuexGettersTree<TModule extends VuexModule = any>
+  = { [name: string]: VuexGetter<TModule, any, any>; }
+
+export type VuexGetter<
+  TModule extends VuexModule, 
+  TResult, 
+  TGetters = VuexGetters<TModule>
+> 
+```
+
+Definition and implementation of getter tree is simple:
+```typescript
+type FooGettersTree = {
+  first: VuexGetter<FooModule, string>
+  firstCapitalized: VuexGetter<FooModule, string>,
+}
+
+const getters: FooGettersTree = {
+  first: state => state.list[0], // state is correctly typed
+  firstCapitalized: (_, getters) => getters.first.toUpperCase(), // getters too!
+}
+```
+
+And getters can be then accessed from the store, and the result will have correct type:
+```typescript
+store.getters['foo/first'] // string
+```
+
+As always there exists few utility types:
+ - `VuexGetterNames<TModule>` - defines all possible getter names, e.g. `VuexGetterNames<MyStore> = "foo/first" | "foo/firstCapitalized" | /* ... */`
+ - `VuexGetters<TModule>` - defines all possible getters with results, e.g. `VuexGetters<MyStore> = { first: string, firstCapitalized: string }`
 
 ## Can I use it in my project?
 For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. I plan to release it however as separate package ASAP and maybe try to start some RFC process on merging something like that into Vuex core.

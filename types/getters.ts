@@ -25,3 +25,6 @@ export type VuexGetters<TModule extends VuexModule<any, any, any, any>, TPrefix 
   
 export type VuexGetterResult<TModule extends VuexModule, TGetter extends keyof VuexGetters<TModule>>
   = VuexGetters<TModule>[TGetter]
+
+export type VuexGettersNames<TModule extends VuexModule>
+  = keyof VuexGetters<TModule>
