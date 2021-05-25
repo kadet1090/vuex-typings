@@ -7,7 +7,8 @@ import {
   VuexActionResult, 
   VuexGetter, 
   VuexMutationHandler, 
-  VuexMutationPayload 
+  VuexMutationPayload, 
+  VuexStore
 } from "./types"
 
 // example store definition
@@ -36,8 +37,8 @@ enum BazMutations {
 }
 
 type FooMutationTree = {
-  [FooMutations.Added]: VuexMutationHandler<FooState, string>
-  [FooMutations.Removed]: VuexMutationHandler<FooState, number>
+  [FooMutations.Added]: VuexMutationHandler<FooState, string, MyStore>
+  [FooMutations.Removed]: VuexMutationHandler<FooState, number, MyStore>
 }
 
 type FooActionsTree = {
@@ -179,4 +180,3 @@ type PayloadOfFooAddedMutation = VuexMutationPayload<MyStore, "foo/added">; // s
 
 type PayloadOfFooLoadAction = VuexActionPayload<MyStore, "foo/load">; // string[]
 type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
-
