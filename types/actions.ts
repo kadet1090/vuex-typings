@@ -5,8 +5,10 @@ import { VuexCommit } from "./mutations";
 import { VuexState } from "./state";
 import { VuexStore, VuexStoreDefinition } from "./store";
 
-export type VuexActionsTree 
-  = { [name: string]: VuexActionHandler<any, any, any, any>; }
+export type VuexActionsTree<
+  TModule extends VuexModule = any, 
+  TDefinition extends VuexStoreDefinition = any
+> = { [name: string]: VuexActionHandler<TModule, any, any, TDefinition>; }
 
 export type VuexActionHandler<
   TModule extends VuexModule, 
