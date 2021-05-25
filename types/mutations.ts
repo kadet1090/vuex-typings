@@ -10,8 +10,8 @@ export type VuexMutationHandler<
   ? (this: VuexStore<TDefinition>, state: TState) => void
   : (this: VuexStore<TDefinition>, state: TState, payload: TPayload) => void
 
-export type VuexMutationsTree 
-  = { [name: string]: VuexMutationHandler<any, any>; }
+export type VuexMutationsTree<TState = any, TDefinition extends VuexStoreDefinition = any>
+  = { [name: string]: VuexMutationHandler<TState, any, TDefinition>; }
 
 export type VuexMutationHandlerPayload<TMutation extends VuexMutationHandler<any, any>> 
   = Parameters<TMutation>[1] extends undefined 

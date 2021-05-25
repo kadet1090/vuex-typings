@@ -26,3 +26,5 @@ export type Partial<TValue>
     [TKey in keyof TValue]?: Partial<TValue[TKey]>
   } 
   : TValue
+
+export type Validate<TExpected, TValidated extends TExpected> = TValidated;

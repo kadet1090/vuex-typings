@@ -6,10 +6,13 @@ import {
   VuexActionPayload, 
   VuexActionResult, 
   VuexGetter, 
+  VuexGettersTree, 
   VuexMutationHandler, 
   VuexMutationPayload, 
+  VuexMutationsTree, 
   VuexStore
 } from "./types"
+import { Validate } from "./types/helpers"
 
 // example store definition
 type FooState = { list: string[] }

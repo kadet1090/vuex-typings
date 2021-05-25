@@ -5,7 +5,7 @@ import { VuexMutationsTree } from "./mutations";
 
 export type BaseVuexModule<
   TState extends {} = {},
-  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
   TActions extends VuexActionsTree = VuexActionsTree | undefined,
   TGetters extends VuexGettersTree = VuexGettersTree | undefined,
   TModules extends VuexModulesTree = {} | undefined,
@@ -19,7 +19,7 @@ export type BaseVuexModule<
 
 export type NamespacedVuexModule<
   TState extends {} = {},
-  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
   TActions extends VuexActionsTree = VuexActionsTree,
   TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = {},
@@ -27,7 +27,7 @@ export type NamespacedVuexModule<
 
 export type GlobalVuexModule<
   TState extends {} = {},
-  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
   TActions extends VuexActionsTree = VuexActionsTree,
   TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = {},
@@ -35,7 +35,7 @@ export type GlobalVuexModule<
 
 export type VuexModule<
   TState extends {} = {},
-  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>,
   TActions extends VuexActionsTree = VuexActionsTree,
   TGetters extends VuexGettersTree = VuexGettersTree,
   TModules extends VuexModulesTree = {},
