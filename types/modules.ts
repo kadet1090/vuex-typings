@@ -47,3 +47,4 @@ export type VuexModule<
 
 export type VuexModulesTree 
   = { [name: string]: VuexModule<any, any, any, any, any> }
+

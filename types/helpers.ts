@@ -20,10 +20,10 @@ export type UndefinedToOptional<TValue extends {}>
   = Omit<TValue, OptionalPropertyNames<TValue>>
   & MakeOptional<TValue, OptionalPropertyNames<TValue>>
 
-export type Partial<TValue> 
+export type AllPartial<TValue> 
   = TValue extends {} 
   ? {
-    [TKey in keyof TValue]?: Partial<TValue[TKey]>
+    [TKey in keyof TValue]?: AllPartial<TValue[TKey]>
   } 
   : TValue
 
@@ -40,9 +40,7 @@ export type IsRequired<T>
   = unknown extends T 
   ? false 
   : [T] extends [undefined] 
-  ? 2
+  ? false
   : [T] extends [never]
   ? false
   : true
-
-type D = IsRequired<string[]>

@@ -489,7 +489,10 @@ store.load('load', 0) // should be an error as payload must be an array of strin
 It is also possible to turn off type safety by explicitly providing `any` type to `createStore`, which could be useful when dealing with highly dynamic stores. 
 
 ## Can I use it in my project?
-For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. I plan to release it however as separate package ASAP and maybe try to start some RFC process on merging something like that into Vuex core.
+For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. Because of that there is no easy to use way - you can however use computer-generated [`vuex.d.ts` file](./vuex.d.ts). Just copy it to your project's directory and reference it with triple-slash directive:
+```typescript
+/// <reference path="path/to/vuex.d.ts" />
+```
 
 ## Full Example
 This example is taken from the [tests/basic.ts](./tests/basic.ts) file and could be interactively tested using vscode or other editor with decent support of typescript language server.
