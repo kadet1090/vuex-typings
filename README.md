@@ -364,8 +364,129 @@ export type VuexStoreDefinition<
 
 The `createStore` function takes `VuexStoreDefinition` as an argument, and creates store instance from it. The store instance is described by the `VuexStore<TDefinition extends VuexStoreDefinition>` type. 
 
-In theory store definition could be inferred from the argument of `createStore` but it's highly unrecommended as the contract will be basically guessed based on definition and not checked - it should provide some useful features when using store instance though.
+Store instance should be fully typed and be mostly type-safe. It means that payloads of actions and mutations would be checked, action results will be known and could be checked, values from getters will be properly typed and so on. You also won't be able to commit/dispatch non-existent mutations/actions.
 
+```typescript
+type MyStore = {
+  state: {
+    global: string;
+  },
+  modules: {
+    foo: FooModule,
+    bar: BarModule,
+    anotherFoo: FooModule,
+  },
+}
+
+// test
+let store = createStore<MyStore>({ /* ... */ })
+
+// should check and auto complete
+store.commit("foo/added", "test");
+store.commit({ type: "foo/added", payload: "test" });
+
+// @ts-expect-error
+store.commit("foo/added", 9);
+// @ts-expect-error
+store.commit("foo/added");
+
+// dispatch works too!
+store.dispatch("anotherFoo/load", ["test"]);
+store.dispatch({ type: "anotherFoo/load", payload: ["test"] });
+
+// @ts-expect-error
+store.dispatch("anotherFoo/load", 0);
+// @ts-expect-error
+store.dispatch("foo/load");
+
+// should check correctly
+store.replaceState({
+  global: "test",
+  foo: {
+    list: [],
+    sub: {
+      current: 0
+    }
+  },
+  anotherFoo: {
+    list: [],
+    sub: {
+      current: 0
+    }
+  },
+  bar: {
+    result: "fizzbuzz"
+  }
+})
+
+// getters also work
+store.getters['anotherFoo/first'];
+
+// watch state is properly typed
+store.watch(state => state.global, (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
+
+// watch getters too!
+store.watch((_, getters) => getters['foo/first'], (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
+
+store.subscribe(mutation => {
+  // properly detects payload type based on mutaiton kind
+  if (mutation.type === "anotherFoo/sub/dec") {
+    const number = mutation.payload; // typeof number = number
+  } else if (mutation.type === "anotherFoo/added") {
+    const str = mutation.payload; // typeof str = string
+  }
+})
+
+store.subscribeAction((action, state) => {
+  // properly detects payload type based on action kind
+  if (action.type === "anotherFoo/load") {
+    const arr = action.payload; // typeof arr = string[]
+  }
+
+  // state is also correctly represented
+  const foo = state.foo.list;
+})
+
+// object notation is also supported
+store.subscribeAction({
+  after(action, state) { /* ... */ },
+  before(action, state) { /* ... */ },
+  error(action, state, error) { /* ... */ }
+})
+```
+
+In theory store definition could be inferred from the argument of `createStore` but it's highly unrecommended as the contract will be basically guessed (which means that it can be guessed wrongly) based on definition and not checked - it should provide some useful features when using store instance though.
+
+```typescript
+const store = createStore({
+  state: { list: [] },
+  mutations: {
+    add(state, element: string) {
+      // State won't be type-safe as full definition of this store is unknown at this point
+      /* ... */ 
+    },
+    remove(state, index: number) { /* ... */ },
+  },
+  mutations: {
+    clear(context) { 
+      // Context won't be type-safe as full definition of this store is unknown at this point
+      /* ... */ 
+    },
+    load(state, ids: string[]) { /* ... */ },
+  }
+})
+
+// This should however work fine
+store.commit('add', 'string')
+store.commit('add', []) // should be an error as payload must be a string
+
+// Same thing goes for dispatch
+store.dispatch('clear')
+store.load('load', ['x', 'y', 'z'])
+store.load('load', 0) // should be an error as payload must be an array of strings
+```
+
+It is also possible to turn off type safety by explicitly providing `any` type to `createStore`, which could be useful when dealing with highly dynamic stores. 
 
 ## Can I use it in my project?
 For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. I plan to release it however as separate package ASAP and maybe try to start some RFC process on merging something like that into Vuex core.
