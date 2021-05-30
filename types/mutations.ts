@@ -1,4 +1,4 @@
-import { AddPrefix, UnionToIntersection } from "./helpers";
+import { AddPrefix, IsRequired, UndefinedToOptional, UnionToIntersection } from "./helpers";
 import { NamespacedVuexModule, VuexModule, VuexModulesTree } from "./modules";
 import { VuexStore, VuexStoreDefinition } from "./store";
 
@@ -25,9 +25,12 @@ export interface VuexCommitOptions {
 }
 
 type VuexArgumentStyleCommitCallable<TMutation, TPayload> 
-  = [TPayload] extends [never] 
-  ? (mutation: TMutation, payload?: undefined, options?: VuexCommitOptions) => void 
-  : (mutation: TMutation, payload: TPayload, options?: VuexCommitOptions) => void
+  = true extends IsRequired<TPayload>
+  ? (mutation: TMutation, payload: TPayload, options?: VuexCommitOptions) => void
+  : (mutation: TMutation, payload?: TPayload, options?: VuexCommitOptions) => void 
+
+type VuexNonTypeSafeArgumentStyleCommit 
+  = VuexArgumentStyleCommitCallable<string, any | undefined>
 
 export type VuexArgumentStyleCommit<TModule extends VuexModule, TPrefix extends string = never> 
   = VuexArgumentStyleCommitOwn<TModule, TPrefix>
@@ -45,23 +48,24 @@ export type VuexObjectStyleCommit<TModule extends VuexModule, TPrefix extends st
   = ((mutation: VuexMutations<TModule, TPrefix>, options?: VuexCommitOptions) => void)
 
 export type VuexCommit<TModule extends VuexModule, TPrefix extends string = never> 
-  = VuexArgumentStyleCommitOwn<TModule, TPrefix>
-  & VuexArgumentStyleCommitModules<TModule["modules"], TPrefix>
+  = VuexArgumentStyleCommit<TModule, TPrefix>
   & VuexObjectStyleCommit<TModule, TPrefix>
 
 export type VuexArgumentStyleCommitModules<TModules extends VuexModulesTree, TPrefix extends string = never> 
-  = UnionToIntersection<{ 
-    [TKey in keyof TModules]: 
-      VuexArgumentStyleCommit<
-        TModules[TKey], 
-        AddPrefix<TModules[TKey] extends NamespacedVuexModule ? (string & TKey) : never, TPrefix>
-      > 
-  }[keyof TModules]>
+  = (TModules extends never ? true : false) extends false
+    ? UnionToIntersection<{ 
+      [TKey in keyof TModules]: 
+        VuexArgumentStyleCommit<
+          TModules[TKey], 
+          AddPrefix<TModules[TKey] extends NamespacedVuexModule ? (string & TKey) : never, TPrefix>
+        > 
+    }[keyof TModules]>
+    : unknown
 
 // Mutations
 export type VuexMutation<TName extends string, TPayload = never> 
   = { type: TName } 
-  & ([TPayload] extends [never] ? { } : { payload: TPayload })
+  & ([TPayload] extends [never] ? { } : UndefinedToOptional<{ payload: TPayload }>)
 
 export type VuexMutations<TModule extends VuexModule, TPrefix extends string = never>
   = VuexOwnMutations<TModule, TPrefix>
@@ -76,13 +80,15 @@ export type VuexOwnMutations<TModule extends VuexModule, TPrefix extends string 
   }[keyof TModule["mutations"]]
 
 export type VuexModulesMutations<TModules extends VuexModulesTree, TPrefix extends string = never>
-  = { 
+  = (TModules extends never ? true : false) extends false
+  ? { 
     [TModule in keyof TModules]:
       VuexMutations<
         TModules[TModule], 
         AddPrefix<TModules[TModule] extends NamespacedVuexModule ? (string & TModule) : never, TPrefix>
       > 
   }[keyof TModules]
+  : never
 
 export type VuexMutationTypes<TModule extends VuexModule, TPrefix extends string = never>
   = VuexOwnMutationTypes<TModule, TPrefix>

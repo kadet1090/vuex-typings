@@ -2,9 +2,16 @@ import {
   createStore, 
   GlobalVuexModule, 
   NamespacedVuexModule, 
+  VuexActionByName, 
   VuexActionHandler, 
   VuexActionPayload, 
   VuexActionResult, 
+  VuexActionTypes, 
+  VuexArgumentStyleCommit, 
+  VuexArgumentStyleCommitModules, 
+  VuexArgumentStyleDispatch, 
+  VuexArgumentStyleDispatchByModules, 
+  VuexArgumentStyleDispatchModules, 
   VuexGetter, 
   VuexMutationHandler, 
   VuexMutationPayload,
@@ -84,9 +91,19 @@ let store = createStore<MyStore>({} as any)
 store.commit("foo/added", "test");
 store.commit({ type: "foo/added", payload: "test" });
 
+// @ts-expect-error
+store.commit("foo/added", 9);
+// @ts-expect-error
+store.commit("foo/added");
+
 // dispatch works too!
 store.dispatch("anotherFoo/load", ["test"]);
 store.dispatch({ type: "anotherFoo/load", payload: ["test"] });
+
+// @ts-expect-error
+store.dispatch("anotherFoo/load", 0);
+// @ts-expect-error
+store.dispatch("foo/load");
 
 // should check correctly
 store.replaceState({

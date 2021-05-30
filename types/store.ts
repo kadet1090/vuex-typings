@@ -8,11 +8,11 @@ export type VuexPlugin<TStore extends VuexStoreDefinition>
   = (store: TStore) => any;
 
 export type VuexStoreDefinition<
-  TState extends {} = {},
+  TState extends {} = any,
   TMutations extends VuexMutationsTree = VuexMutationsTree,
   TActions extends VuexActionsTree = VuexActionsTree,
   TGetters extends VuexGettersTree = VuexGettersTree,
-  TModules extends VuexModulesTree = VuexModulesTree,
+  TModules extends VuexModulesTree = {} | undefined,
 > = Omit<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>, "namespaced">
   & {
     strict?: boolean,

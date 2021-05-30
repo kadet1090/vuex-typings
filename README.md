@@ -90,6 +90,14 @@ type BarModule = {
 const foo: FooModule = { /* ... */ }
 ```
 
+Modules can have sub-modules, that are described by the `VuexModulesTree` - basically every module can be sub-module of any other module as long as it does not create circular reference.
+```typescript
+export type VuexModulesTree 
+  = { [name: string]: VuexModule }
+```
+
+All properties like mutations, actions and getters will be correctly namespaced based on the sub-module kind.
+
 ### State
 State is the most straightforward aspect of module - it just represents data held in the store and basically can be any of type. 
 
@@ -336,6 +344,28 @@ store.getters['foo/first'] // string
 As always there exists few utility types:
  - `VuexGetterNames<TModule>` - defines all possible getter names, e.g. `VuexGetterNames<MyStore> = "foo/first" | "foo/firstCapitalized" | /* ... */`
  - `VuexGetters<TModule>` - defines all possible getters with results, e.g. `VuexGetters<MyStore> = { first: string, firstCapitalized: string }`
+
+### Store
+As was previously said, the store definition is just a global module with extra properties:
+```typescript
+export type VuexStoreDefinition<
+  TState extends {} = {},
+  TMutations extends VuexMutationsTree = VuexMutationsTree,
+  TActions extends VuexActionsTree = VuexActionsTree,
+  TGetters extends VuexGettersTree = VuexGettersTree,
+  TModules extends VuexModulesTree = VuexModulesTree,
+> = Omit<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>, "namespaced">
+  & {
+    strict?: boolean,
+    devtools?: boolean,
+    plugins?: VuexPlugin<VuexStoreDefinition<TState, TMutations, TActions, TGetters, TModules>>[]
+  }
+```
+
+The `createStore` function takes `VuexStoreDefinition` as an argument, and creates store instance from it. The store instance is described by the `VuexStore<TDefinition extends VuexStoreDefinition>` type. 
+
+In theory store definition could be inferred from the argument of `createStore` but it's highly unrecommended as the contract will be basically guessed based on definition and not checked - it should provide some useful features when using store instance though.
+
 
 ## Can I use it in my project?
 For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. I plan to release it however as separate package ASAP and maybe try to start some RFC process on merging something like that into Vuex core.

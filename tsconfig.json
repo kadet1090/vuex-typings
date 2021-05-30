@@ -4,6 +4,7 @@
         "extendedDiagnostics": true,
         "traceResolution": true,
         "noEmit": true,
+        "alwaysStrict": true,
     },
     "include": ["types/**/*.ts", "tests/**/*.ts"],
     "exclude": ["node_modules/**/*"]

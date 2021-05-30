@@ -1,5 +1,5 @@
 import { VuexGetters } from "./getters";
-import { AddPrefix, UnionToIntersection } from "./helpers";
+import { AddPrefix, IsRequired, OmitUndefinedKeys, UndefinedToOptional, UnionToIntersection } from "./helpers";
 import { NamespacedVuexModule, VuexModule, VuexModulesTree } from "./modules";
 import { VuexCommit } from "./mutations";
 import { VuexState } from "./state";
@@ -27,7 +27,7 @@ export type VuexActionHandlerPayload<TAction extends VuexActionHandler<any, any,
   : Parameters<TAction>[1]
 
 export type VuexActionContext<
-  TModule extends VuexModule, 
+  TModule extends VuexModule,
   TRoot extends VuexModule<any, any, any, any, any> = VuexModule<any, any, any, any, any>
 > = {
     commit: VuexCommit<TModule>,
@@ -42,7 +42,7 @@ export type VuexActionContext<
 
 export type VuexAction<TName extends string, TPayload = never> 
   = { type: TName } 
-  & ([TPayload] extends [never] ? { } : { payload: TPayload })
+  & ([TPayload] extends [never] ? { } : UndefinedToOptional<{ payload: TPayload }>)
 
 export type VuexActions<TModule extends VuexModule, TPrefix extends string = never>
   = VuexOwnActions<TModule, TPrefix>
@@ -68,9 +68,9 @@ export type VuexModulesActions<TModules extends VuexModulesTree, TPrefix extends
 // Dispatch
 
 type VuexArgumentStyleDispatchCallable<TAction, TPayload, TResult> 
-  = [TPayload] extends [never] 
-  ? (action: TAction, payload?: undefined, options?: VuexDispatchOptions) => TResult
-  : (action: TAction, payload: TPayload, options?: VuexDispatchOptions) => TResult
+  = true extends IsRequired<TPayload>
+  ? (action: TAction, payload: TPayload, options?: VuexDispatchOptions) => TResult
+  : (action: TAction, payload?: TPayload, options?: VuexDispatchOptions) => TResult
 
 export type VuexDispatchOptions 
   = { root?: boolean }
@@ -91,7 +91,7 @@ export type VuexArgumentStyleDispatch<TModule extends VuexModule, TPrefix extend
   & VuexArgumentStyleDispatchModules<TModule["modules"], TPrefix>
 
 export type VuexArgumentStyleDispatchOwn<TModule extends VuexModule, TPrefix extends string = never>
-  = {} extends TModule["actions"] ? {} : UnionToIntersection<{
+  = UnionToIntersection<{
     [TAction in keyof TModule["actions"]]: VuexArgumentStyleDispatchCallable<
       AddPrefix<string & TAction, TPrefix>,
       VuexActionHandlerPayload<TModule["actions"][TAction]>,
@@ -100,16 +100,18 @@ export type VuexArgumentStyleDispatchOwn<TModule extends VuexModule, TPrefix ext
   }[keyof TModule["actions"]]>
 
 export type VuexArgumentStyleDispatchByModules<TModules extends VuexModulesTree, TPrefix extends string = never>
-  = { 
+  = (TModules extends never ? true : false) extends false
+  ? OmitUndefinedKeys<{ 
     [TModule in keyof TModules]: 
       VuexArgumentStyleDispatch<
         TModules[TModule], 
         AddPrefix<TModules[TModule] extends NamespacedVuexModule ? (string & TModule) : never, TPrefix>
       > 
-  }
+  }>
+  : never
 
 export type VuexArgumentStyleDispatchModules<TModules extends VuexModulesTree, TPrefix extends string = never>
-  = UnionToIntersection<VuexArgumentStyleDispatchByModules<TModules, TPrefix>[keyof TModules]>
+  = UnionToIntersection<VuexArgumentStyleDispatchByModules<TModules, TPrefix>[keyof VuexArgumentStyleDispatchByModules<TModules, TPrefix>]>
 
 export type VuexActionTypes<TModule extends VuexModule, TPrefix extends string = never>
   = VuexOwnActionTypes<TModule, TPrefix>
@@ -119,19 +121,23 @@ export type VuexOwnActionTypes<TModule extends VuexModule, TPrefix extends strin
   = AddPrefix<string & keyof TModule["actions"], TPrefix>
 
 export type VuexModulesActionTypes<TModules extends VuexModulesTree, TPrefix extends string = never>
-  = { 
+  = (TModules extends never ? true : false) extends false
+  ? { 
     [TModule in keyof TModules]:
       VuexOwnActionTypes<
         TModules[TModule], 
         AddPrefix<TModules[TModule] extends NamespacedVuexModule ? (string & TModule) : never, TPrefix>
       > 
   }[keyof TModules]
+  : never
 
 export type VuexActionByName<
   TModule extends VuexModule, 
   TAction extends VuexActionTypes<TModule>,
   TPrefix extends string = never,
-> = Extract<VuexActions<TModule, TPrefix>, VuexAction<TAction, any>>
+> = (TModule extends never ? true : false) extends false
+  ? Extract<VuexActions<TModule, TPrefix>, VuexAction<TAction, any>>
+  : VuexAction<string, any>
 
 export type VuexActionPayload<
   TModule extends VuexModule, 

@@ -46,4 +46,4 @@ export type VuexModule<
   | NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>
 
 export type VuexModulesTree 
-  = { [name: string]: VuexModule }
+  = { [name: string]: VuexModule<any, any, any, any, any> }

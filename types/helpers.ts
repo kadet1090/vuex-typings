@@ -27,4 +27,22 @@ export type Partial<TValue>
   } 
   : TValue
 
-export type Validate<TExpected, TValidated extends TExpected> = TValidated;
+export type Validate<TExpected, TValidated extends TExpected> 
+  = TValidated
+
+export type UndefinedKeys<T extends {}>
+  = { [TKey in keyof T]: unknown extends T[TKey] ? TKey : never }[keyof T]
+
+export type OmitUndefinedKeys<T extends {}>
+  = Omit<T, UndefinedKeys<T>>
+
+export type IsRequired<T> 
+  = unknown extends T 
+  ? false 
+  : [T] extends [undefined] 
+  ? 2
+  : [T] extends [never]
+  ? false
+  : true
+
+type D = IsRequired<string[]>

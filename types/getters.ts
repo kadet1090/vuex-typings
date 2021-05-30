@@ -5,19 +5,21 @@ import { VuexState } from "./state";
 export type VuexGettersTree<TModule extends VuexModule = any>
   = { [name: string]: VuexGetter<TModule, any, any>; }
 
-export type VuexGetter<TModule extends VuexModule, TResult, TGetters = VuexGetters<TModule>> 
+export type VuexGetter<TModule extends VuexModule<any, any, any, any>, TResult, TGetters = VuexGetters<TModule>> 
   = (state: VuexState<TModule>, getters: TGetters) => TResult
 
 export type VuexOwnGetters<TModule extends VuexModule, TPrefix extends string = never>
   = { [TGetter in keyof TModule["getters"] as `${AddPrefix<string & TGetter, TPrefix>}`]: ReturnType<TModule["getters"][TGetter]> }
 
 export type VuexModulesGetters<TModules extends VuexModulesTree, TPrefix extends string = never>
-  = UnionToIntersection<{ 
+  = (TModules extends never ? true : false) extends false
+  ? UnionToIntersection<{ 
     [TModule in keyof TModules]: VuexGetters<
       TModules[TModule], 
       AddPrefix<TModules[TModule] extends NamespacedVuexModule ? (string & TModule) : never, TPrefix>
     > 
   }[keyof TModules]>
+  : unknown
 
 export type VuexGetters<TModule extends VuexModule<any, any, any, any>, TPrefix extends string = never>
   = VuexOwnGetters<TModule, TPrefix>
