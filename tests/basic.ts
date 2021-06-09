@@ -1,21 +1,14 @@
-import { 
-  createStore, 
-  GlobalVuexModule, 
-  NamespacedVuexModule, 
-  VuexActionByName, 
-  VuexActionHandler, 
-  VuexActionPayload, 
-  VuexActionResult, 
-  VuexActionTypes, 
-  VuexArgumentStyleCommit, 
-  VuexArgumentStyleCommitModules, 
-  VuexArgumentStyleDispatch, 
-  VuexArgumentStyleDispatchByModules, 
-  VuexArgumentStyleDispatchModules, 
-  VuexGetter, 
-  VuexMutationHandler, 
+import {
+  createStore,
+  GlobalVuexModule,
+  NamespacedVuexModule,
+  VuexActionHandler,
+  VuexActionPayload,
+  VuexActionResult,
+  VuexGetter,
+  VuexMutationHandler,
   VuexMutationPayload,
-  VuexStoreDefinition, 
+  VuexStoreDefinition
 } from "../types"
 import { Validate } from "../types/helpers"
 

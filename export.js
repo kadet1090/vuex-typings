@@ -31,6 +31,10 @@ for (let file of filesToInclude) {
     const structure = includedFile.getStructure();
 
     forEachStructureChild(structure, child => {
+        if (Structure.isImportDeclaration(child) && !child.moduleSpecifier.startsWith('.')) {
+            vuexModuleDeclaration.addImportDeclaration(child)
+        }
+
         if (Structure.isClass(child)) {
             vuexModuleDeclaration.addClass(child)
         }

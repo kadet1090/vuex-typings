@@ -5,7 +5,9 @@
   "repository": "git@github.com:kadet1090/vuex-typings.git",
   "author": "Kacper Donat <kadet1090@gmail.com>",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "vue": "^2.6.14"
+  },
   "devDependencies": {
     "ts-morph": "^11.0.0"
   }

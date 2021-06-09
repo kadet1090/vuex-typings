@@ -1,4 +1,6 @@
 declare module "vuex" {
+    import { WatchOptions } from "vue";
+
     export type VuexActionsTree<TModule extends VuexModule = any, TDefinition extends VuexStoreDefinition = any> = { [name: string]: VuexActionHandler<TModule, any, any, TDefinition>; };
     export type VuexActionHandler<TModule extends VuexModule, TPayload = never, TResult = Promise<void>, TDefinition extends VuexStoreDefinition = any> = (
           this: VuexStore<TDefinition>, 
