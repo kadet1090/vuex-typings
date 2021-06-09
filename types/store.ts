@@ -1,7 +1,8 @@
+import { WatchOptions } from "vue";
 import { VuexActions, VuexActionsTree, VuexDispatch } from "./actions";
 import { VuexGetter, VuexGetters, VuexGettersTree } from "./getters";
 import { GlobalVuexModule, VuexModulesTree } from "./modules";
-import { VuexCommitOptions, VuexCommit as VuexCommit, VuexMutations, VuexMutationsTree, VuexArgumentStyleCommit, VuexObjectStyleCommit } from "./mutations";
+import { VuexArgumentStyleCommit, VuexMutations, VuexMutationsTree, VuexObjectStyleCommit } from "./mutations";
 import { VuexState } from "./state";
 
 export type VuexPlugin<TStore> 
@@ -21,67 +22,68 @@ export type VuexStoreDefinition<
   }
 
 export type VuexWatchOptions 
-  = any; // should import WatchOptions from vue
+  = WatchOptions
 
-export type VuexSubscribeOptions 
-  = {
-    prepend?: boolean
-  }
+export interface VuexSubscribeOptions {
+  prepend?: boolean
+}
 
-export type VuexMutationSubscriber<TDefinition extends VuexStoreDefinition>
-  = (mutation: VuexMutations<TDefinition>) => any
+export interface VuexMutationSubscriber<TDefinition extends VuexStoreDefinition> {
+  (mutation: VuexMutations<TDefinition>): any
+}
 
 export type VuexActionSubscriber<TDefinition extends VuexStoreDefinition>
   = VuexActionSubscriberCallback<TDefinition>
   | VuexActionSubscriberObject<TDefinition>
 
-export type VuexActionSubscriberCallback<TDefinition extends VuexStoreDefinition>
-  = (action: VuexActions<TDefinition>, state: VuexState<TDefinition>) => any
+export interface VuexActionSubscriberCallback<TDefinition extends VuexStoreDefinition> {
+  (action: VuexActions<TDefinition>, state: VuexState<TDefinition>): any
+}
   
-export type VuexActionErrorSubscriberCallback<TDefinition extends VuexStoreDefinition>
-  = (action: VuexActions<TDefinition>, state: VuexState<TDefinition>, error: Error) => any
+export interface VuexActionErrorSubscriberCallback<TDefinition extends VuexStoreDefinition> {
+  (action: VuexActions<TDefinition>, state: VuexState<TDefinition>, error: Error): any;
+}
 
-export type VuexActionSubscriberObject<TDefinition extends VuexStoreDefinition>
-  = {
-    before?: VuexActionSubscriberCallback<TDefinition>
-    after?: VuexActionSubscriberCallback<TDefinition>
-    error?: VuexActionErrorSubscriberCallback<TDefinition>
-  }
+export interface VuexActionSubscriberObject<TDefinition extends VuexStoreDefinition> {
+  before?: VuexActionSubscriberCallback<TDefinition>
+  after?: VuexActionSubscriberCallback<TDefinition>
+  error?: VuexActionErrorSubscriberCallback<TDefinition>
+}
 
 export type VuexUnsubscribeFunction = () => void
 
-export type VuexStore<TDefinition extends VuexStoreDefinition> 
-  = {
-    constructor(definition: TDefinition);
+export interface VuexStore<TDefinition extends VuexStoreDefinition> {
+  constructor(definition: TDefinition);
 
-    commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
-    dispatch: VuexDispatch<TDefinition>;
-    getters: VuexGetters<TDefinition>;
+  commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
+  dispatch: VuexDispatch<TDefinition>;
+  getters: VuexGetters<TDefinition>;
+  state: VuexState<TDefinition>;
 
-    replaceState(state: VuexState<TDefinition>): void;
+  replaceState(state: VuexState<TDefinition>): void;
 
-    hotUpdate(options: {
-      actions?: VuexActionsTree,
-      mutations?: VuexMutationsTree,
-      getters?: VuexGettersTree,
-      modules?: VuexModulesTree,
-    }): void
+  hotUpdate(options: {
+    actions?: VuexActionsTree,
+    mutations?: VuexMutationsTree,
+    getters?: VuexGettersTree,
+    modules?: VuexModulesTree,
+  }): void
 
-    watch<T>(
-      getter: VuexGetter<TDefinition, T>, 
-      callback: (value: T, oldValue: T) => void, 
-      options?: VuexWatchOptions
-    ): VuexUnsubscribeFunction
+  watch<T>(
+    getter: VuexGetter<TDefinition, T>, 
+    callback: (value: T, oldValue: T) => void, 
+    options?: VuexWatchOptions
+  ): VuexUnsubscribeFunction
 
-    subscribe(
-      mutation: VuexMutationSubscriber<TDefinition>,
-      options?: VuexSubscribeOptions
-    ): VuexUnsubscribeFunction
+  subscribe(
+    mutation: VuexMutationSubscriber<TDefinition>,
+    options?: VuexSubscribeOptions
+  ): VuexUnsubscribeFunction
 
-    subscribeAction(
-      mutation: VuexActionSubscriber<TDefinition>,
-      options?: VuexSubscribeOptions
-    ): VuexUnsubscribeFunction
-  }
+  subscribeAction(
+    mutation: VuexActionSubscriber<TDefinition>,
+    options?: VuexSubscribeOptions
+  ): VuexUnsubscribeFunction
+}
 
 export declare function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;

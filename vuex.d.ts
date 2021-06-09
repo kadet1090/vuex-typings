@@ -8,14 +8,16 @@ declare module "vuex" {
     export type VuexActionHandlerPayload<TAction extends VuexActionHandler<any, any, any, any>> = Parameters<TAction>[1] extends undefined 
           ? never 
           : Parameters<TAction>[1];
-    export type VuexActionContext<TModule extends VuexModule, TRoot extends VuexModule<any, any, any, any, any> = VuexModule<any, any, any, any, any>> = {
-            commit: VuexCommit<TModule>,
-            dispatch: VuexDispatch<TModule>,
-            state: VuexState<TModule>,
-            getters: VuexGetters<TModule>,
-            rootState: VuexState<TRoot>,
-            rootGetters: VuexGetters<TRoot>,
-          };
+
+    export interface VuexActionContext<TModule extends VuexModule, TRoot extends VuexModule<any, any, any, any, any> = VuexModule<any, any, any, any, any>> {
+        commit: VuexCommit<TModule>;
+        dispatch: VuexDispatch<TModule>;
+        state: VuexState<TModule>;
+        getters: VuexGetters<TModule>;
+        rootState: VuexState<TRoot>;
+        rootGetters: VuexGetters<TRoot>;
+    }
+
     export type VuexAction<TName extends string, TPayload = never> = { type: TName } 
           & ([TPayload] extends [never] ? { } : UndefinedToOptional<{ payload: TPayload }>);
     export type VuexActions<TModule extends VuexModule, TPrefix extends string = never> = VuexOwnActions<TModule, TPrefix>
@@ -36,7 +38,11 @@ declare module "vuex" {
     type VuexArgumentStyleDispatchCallable<TAction, TPayload, TResult> = true extends IsRequired<TPayload>
           ? (action: TAction, payload: TPayload, options?: VuexDispatchOptions) => TResult
           : (action: TAction, payload?: TPayload, options?: VuexDispatchOptions) => TResult;
-    export type VuexDispatchOptions = { root?: boolean };
+
+    export interface VuexDispatchOptions {
+        root?: boolean;
+    }
+
     export type VuexDispatch<TModule extends VuexModule, TPrefix extends string = never> = VuexObjectStyleDispatch<TModule, TPrefix>
           & VuexArgumentStyleDispatch<TModule, TPrefix>;
     export type VuexObjectStyleDispatch<TModule extends VuexModule, TPrefix extends string = never> = <TAction extends VuexActionTypes<TModule>>(
@@ -97,7 +103,6 @@ declare module "vuex" {
     type VuexArgumentStyleCommitCallable<TMutation, TPayload> = true extends IsRequired<TPayload>
           ? (mutation: TMutation, payload: TPayload, options?: VuexCommitOptions) => void
           : (mutation: TMutation, payload?: TPayload, options?: VuexCommitOptions) => void;
-    type VuexNonTypeSafeArgumentStyleCommit = VuexArgumentStyleCommitCallable<string, any | undefined>;
     export type VuexArgumentStyleCommit<TModule extends VuexModule, TPrefix extends string = never> = VuexArgumentStyleCommitOwn<TModule, TPrefix>
           & VuexArgumentStyleCommitModules<TModule["modules"], TPrefix>;
     export type VuexArgumentStyleCommitOwn<TModule extends VuexModule, TPrefix extends string = never> = UnionToIntersection<{ 
@@ -106,7 +111,7 @@ declare module "vuex" {
               VuexMutationHandlerPayload<TModule["mutations"][TMutation]>
             >;
           }[keyof TModule["mutations"]]>;
-    export type VuexObjectStyleCommit<TModule extends VuexModule, TPrefix extends string = never> = ((mutation: VuexMutations<TModule, TPrefix>, options?: VuexCommitOptions) => void);
+    export type VuexObjectStyleCommit<TModule extends VuexModule, TPrefix extends string = never> = (mutation: VuexMutations<TModule, TPrefix>, options?: VuexCommitOptions) => void;
     export type VuexCommit<TModule extends VuexModule, TPrefix extends string = never> = VuexArgumentStyleCommit<TModule, TPrefix>
           & VuexObjectStyleCommit<TModule, TPrefix>;
     export type VuexArgumentStyleCommitModules<TModules extends VuexModulesTree, TPrefix extends string = never> = (TModules extends never ? true : false) extends false
@@ -196,53 +201,52 @@ declare module "vuex" {
             devtools?: boolean,
             plugins?: VuexPlugin<VuexStoreDefinition<TState, TMutations, TActions, TGetters, TModules>>[]
           };
-    export type VuexWatchOptions = any;
-    export type VuexSubscribeOptions = {
-            prepend?: boolean
-          };
-    export type VuexMutationSubscriber<TDefinition extends VuexStoreDefinition> = (mutation: VuexMutations<TDefinition>) => any;
+    export type VuexWatchOptions = WatchOptions;
+
+    export interface VuexSubscribeOptions {
+        prepend?: boolean;
+    }
+
+    export interface VuexMutationSubscriber<TDefinition extends VuexStoreDefinition> {
+        (mutation: VuexMutations<TDefinition>): any;
+    }
+
     export type VuexActionSubscriber<TDefinition extends VuexStoreDefinition> = VuexActionSubscriberCallback<TDefinition>
           | VuexActionSubscriberObject<TDefinition>;
-    export type VuexActionSubscriberCallback<TDefinition extends VuexStoreDefinition> = (action: VuexActions<TDefinition>, state: VuexState<TDefinition>) => any;
-    export type VuexActionErrorSubscriberCallback<TDefinition extends VuexStoreDefinition> = (action: VuexActions<TDefinition>, state: VuexState<TDefinition>, error: Error) => any;
-    export type VuexActionSubscriberObject<TDefinition extends VuexStoreDefinition> = {
-            before?: VuexActionSubscriberCallback<TDefinition>
-            after?: VuexActionSubscriberCallback<TDefinition>
-            error?: VuexActionErrorSubscriberCallback<TDefinition>
-          };
+
+    export interface VuexActionSubscriberCallback<TDefinition extends VuexStoreDefinition> {
+        (action: VuexActions<TDefinition>, state: VuexState<TDefinition>): any;
+    }
+
+    export interface VuexActionErrorSubscriberCallback<TDefinition extends VuexStoreDefinition> {
+        (action: VuexActions<TDefinition>, state: VuexState<TDefinition>, error: Error): any;
+    }
+
+    export interface VuexActionSubscriberObject<TDefinition extends VuexStoreDefinition> {
+        before?: VuexActionSubscriberCallback<TDefinition>;
+        after?: VuexActionSubscriberCallback<TDefinition>;
+        error?: VuexActionErrorSubscriberCallback<TDefinition>;
+    }
+
     export type VuexUnsubscribeFunction = () => void;
-    export type VuexStore<TDefinition extends VuexStoreDefinition> = {
-            constructor(definition: TDefinition);
 
-            commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
-            dispatch: VuexDispatch<TDefinition>;
-            getters: VuexGetters<TDefinition>;
-
-            replaceState(state: VuexState<TDefinition>): void;
-
-            hotUpdate(options: {
-              actions?: VuexActionsTree,
-              mutations?: VuexMutationsTree,
-              getters?: VuexGettersTree,
-              modules?: VuexModulesTree,
-            }): void
-
-            watch<T>(
-              getter: VuexGetter<TDefinition, T>, 
-              callback: (value: T, oldValue: T) => void, 
-              options?: VuexWatchOptions
-            ): VuexUnsubscribeFunction
-
-            subscribe(
-              mutation: VuexMutationSubscriber<TDefinition>,
-              options?: VuexSubscribeOptions
-            ): VuexUnsubscribeFunction
-
-            subscribeAction(
-              mutation: VuexActionSubscriber<TDefinition>,
-              options?: VuexSubscribeOptions
-            ): VuexUnsubscribeFunction
-          };
+    export interface VuexStore<TDefinition extends VuexStoreDefinition> {
+        commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
+        dispatch: VuexDispatch<TDefinition>;
+        getters: VuexGetters<TDefinition>;
+        state: VuexState<TDefinition>;
+        constructor(definition: TDefinition);
+        replaceState(state: VuexState<TDefinition>): void;
+        hotUpdate(options: {
+            actions?: VuexActionsTree,
+            mutations?: VuexMutationsTree,
+            getters?: VuexGettersTree,
+            modules?: VuexModulesTree,
+            }): void;
+        watch<T>(getter: VuexGetter<TDefinition, T>, callback: (value: T, oldValue: T) => void, options?: VuexWatchOptions): VuexUnsubscribeFunction;
+        subscribe(mutation: VuexMutationSubscriber<TDefinition>, options?: VuexSubscribeOptions): VuexUnsubscribeFunction;
+        subscribeAction(mutation: VuexActionSubscriber<TDefinition>, options?: VuexSubscribeOptions): VuexUnsubscribeFunction;
+    }
 
     export function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;
 }

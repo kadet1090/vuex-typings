@@ -26,17 +26,17 @@ export type VuexActionHandlerPayload<TAction extends VuexActionHandler<any, any,
   ? never 
   : Parameters<TAction>[1]
 
-export type VuexActionContext<
+export interface VuexActionContext<
   TModule extends VuexModule,
   TRoot extends VuexModule<any, any, any, any, any> = VuexModule<any, any, any, any, any>
-> = {
-    commit: VuexCommit<TModule>,
-    dispatch: VuexDispatch<TModule>,
-    state: VuexState<TModule>,
-    getters: VuexGetters<TModule>,
-    rootState: VuexState<TRoot>,
-    rootGetters: VuexGetters<TRoot>,
-  }
+> {
+  commit: VuexCommit<TModule>,
+  dispatch: VuexDispatch<TModule>,
+  state: VuexState<TModule>,
+  getters: VuexGetters<TModule>,
+  rootState: VuexState<TRoot>,
+  rootGetters: VuexGetters<TRoot>,
+}
 
 // Actions
 
@@ -72,8 +72,9 @@ type VuexArgumentStyleDispatchCallable<TAction, TPayload, TResult>
   ? (action: TAction, payload: TPayload, options?: VuexDispatchOptions) => TResult
   : (action: TAction, payload?: TPayload, options?: VuexDispatchOptions) => TResult
 
-export type VuexDispatchOptions 
-  = { root?: boolean }
+export interface VuexDispatchOptions { 
+  root?: boolean
+}
 
 export type VuexDispatch<TModule extends VuexModule, TPrefix extends string = never>
   = VuexObjectStyleDispatch<TModule, TPrefix>

@@ -29,9 +29,6 @@ type VuexArgumentStyleCommitCallable<TMutation, TPayload>
   ? (mutation: TMutation, payload: TPayload, options?: VuexCommitOptions) => void
   : (mutation: TMutation, payload?: TPayload, options?: VuexCommitOptions) => void 
 
-type VuexNonTypeSafeArgumentStyleCommit 
-  = VuexArgumentStyleCommitCallable<string, any | undefined>
-
 export type VuexArgumentStyleCommit<TModule extends VuexModule, TPrefix extends string = never> 
   = VuexArgumentStyleCommitOwn<TModule, TPrefix>
   & VuexArgumentStyleCommitModules<TModule["modules"], TPrefix>
@@ -45,7 +42,7 @@ export type VuexArgumentStyleCommitOwn<TModule extends VuexModule, TPrefix exten
   }[keyof TModule["mutations"]]>
   
 export type VuexObjectStyleCommit<TModule extends VuexModule, TPrefix extends string = never>
-  = ((mutation: VuexMutations<TModule, TPrefix>, options?: VuexCommitOptions) => void)
+  = (mutation: VuexMutations<TModule, TPrefix>, options?: VuexCommitOptions) => void
 
 export type VuexCommit<TModule extends VuexModule, TPrefix extends string = never> 
   = VuexArgumentStyleCommit<TModule, TPrefix>
