@@ -759,10 +759,10 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
        - [x] Subscriber `VuexMutationSubscriber<TDefinition>`
    - [x] Watch `watch`
      - [x] ~~Options `WatchOptions`~~ should be imported from Vue
-   - [ ] Dynamic module management
-     - [ ] Registration `registerModule`
-     - [ ] Unregistration `unregisterModule`
-     - [ ] Presence check `hasModule`
+   - [x] Dynamic module management
+     - [x] Registration `registerModule`
+     - [x] Unregistration `unregisterModule`
+     - [x] Presence check `hasModule`
    - [x] Hot Update - it's not type safe so it's declared loosely
 
 ## License

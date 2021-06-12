@@ -6,6 +6,7 @@ import {
   VuexActionPayload,
   VuexActionResult,
   VuexGetter,
+  VuexModulesWithPath,
   VuexMutationHandler,
   VuexMutationPayload,
   VuexStoreDefinition

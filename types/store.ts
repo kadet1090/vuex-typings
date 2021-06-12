@@ -1,7 +1,8 @@
 import { WatchOptions } from "vue";
 import { VuexActions, VuexActionsTree, VuexDispatch } from "./actions";
 import { VuexGetter, VuexGetters, VuexGettersTree } from "./getters";
-import { GlobalVuexModule, VuexModulesTree } from "./modules";
+import { OneOrMany } from "./helpers";
+import { GlobalVuexModule, VuexModuleByPath, VuexModuleOptions, VuexModulePath, VuexModulesTree } from "./modules";
 import { VuexArgumentStyleCommit, VuexMutations, VuexMutationsTree, VuexObjectStyleCommit } from "./mutations";
 import { VuexState } from "./state";
 
@@ -84,4 +85,9 @@ export interface VuexStore<TDefinition extends VuexStoreDefinition> {
     mutation: VuexActionSubscriber<TDefinition>,
     options?: VuexSubscribeOptions
   ): VuexUnsubscribeFunction
+
+  registerModule<TPath extends VuexModulePath<TDefinition>>(path: TPath, module: VuexModuleByPath<TDefinition, TPath>, options?: VuexModuleOptions): void;
+  unregisterModule(path: VuexModulePath<TDefinition>): void;
+
+  hasModule(path: VuexModulePath<TDefinition>): boolean;
 }

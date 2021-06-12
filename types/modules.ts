@@ -1,6 +1,6 @@
 import { VuexActionsTree } from "./actions";
 import { VuexGettersTree } from "./getters";
-import { UndefinedToOptional } from "./helpers";
+import { OneOrMany, UndefinedToOptional } from "./helpers";
 import { VuexMutationsTree } from "./mutations";
 import { VuexStateProvider } from "./state";
 
@@ -48,3 +48,59 @@ export type VuexModule<
 export type VuexModulesTree 
   = { [name: string]: VuexModule<any, any, any, any, any> }
 
+export type VuexModulePathOwn<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never>
+  = [TPrefix] extends [never]
+  ? keyof TModule["modules"] 
+  | { [TName in keyof TModule["modules"]]: [TName] }[keyof TModule["modules"]]
+  : { [TName in keyof TModule["modules"]]: [ ...TPrefix, TName ] }[keyof TModule["modules"]]
+
+export type VuexModulePathModules<TModules, TPrefix extends string[] = never>
+  = { 
+    [TModule in keyof TModules]: 
+      VuexModulePathOwn<
+        TModules[TModule], 
+        [TPrefix] extends [never] ? [TModule & string] : [...TPrefix, TModule & string]
+      > 
+  }[keyof TModules]
+
+export type VuexModulesWithPath<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never>
+  = VuexModulesWithPathOwn<TModule, TPrefix>
+  | VuexModulesWithPathModules<TModule["modules"], TPrefix> 
+
+export type VuexModulesWithPathOwn<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never>
+  = [TPrefix] extends [never]
+  ? { 
+    [TName in keyof TModule["modules"]]: { 
+      path: [TName], 
+      definition: TModule["modules"][TName] 
+    } 
+  }[keyof TModule["modules"]]
+  : { 
+    [TName in keyof TModule["modules"]]: {
+      path: [ ...TPrefix, TName ],
+      definition: TModule["modules"][TName] 
+    }
+  }[keyof TModule["modules"]]
+
+export type VuexModulesWithPathModules<TModules, TPrefix extends string[] = never>
+  = { 
+    [TModule in keyof TModules]: 
+      VuexModulesWithPathOwn<
+        TModules[TModule], 
+        [TPrefix] extends [never] ? [TModule & string] : [...TPrefix, TModule & string]
+      > 
+  }[keyof TModules]
+
+export type VuexModulePath<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never>
+  = VuexModulePathOwn<TModule, TPrefix>
+  | VuexModulePathModules<TModule["modules"], TPrefix> 
+
+export type VuexModuleByPath<TModule extends VuexModule<any, any, any, any>, TPath extends VuexModulePath<TModule>>
+  = Extract<
+    { path: TPath, definition: any }, 
+    VuexModulesWithPath<TModule>
+  >["definition"]
+
+export interface VuexModuleOptions {
+  preserveState?: boolean;
+}

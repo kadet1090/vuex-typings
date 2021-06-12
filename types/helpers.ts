@@ -44,3 +44,7 @@ export type IsRequired<T>
   : [T] extends [never]
   ? false
   : true
+
+export type OneOrMany<T> 
+  = T 
+  | T[]
