@@ -53,7 +53,7 @@ export interface VuexActionSubscriberObject<TDefinition extends VuexStoreDefinit
 export type VuexUnsubscribeFunction = () => void
 
 export interface VuexStore<TDefinition extends VuexStoreDefinition> {
-  constructor(definition: TDefinition);
+  new (definition: TDefinition);
 
   commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
   dispatch: VuexDispatch<TDefinition>;
@@ -85,5 +85,3 @@ export interface VuexStore<TDefinition extends VuexStoreDefinition> {
     options?: VuexSubscribeOptions
   ): VuexUnsubscribeFunction
 }
-
-export declare function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;

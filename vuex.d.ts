@@ -233,11 +233,11 @@ declare module "vuex" {
     export type VuexUnsubscribeFunction = () => void;
 
     export interface VuexStore<TDefinition extends VuexStoreDefinition> {
+        new(definition: TDefinition);
         commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
         dispatch: VuexDispatch<TDefinition>;
-        getters: VuexGetters<TDefinition>;
+        getters: VuexGetters<TDefinition>;constructor
         state: VuexState<TDefinition>;
-        constructor(definition: TDefinition);
         replaceState(state: VuexState<TDefinition>): void;
         hotUpdate(options: {
             actions?: VuexActionsTree,
@@ -251,6 +251,15 @@ declare module "vuex" {
     }
 
     export function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;
+
+    export function install(...args: any[]): any;
+
+    export class Store<TDefinition extends VuexStoreDefinition> {
+        constructor(definition: TDefinition);
+    }
+
+    export interface Store<TDefinition extends VuexStoreDefinition> extends VuexStore<TDefinition> {
+    }
 }
 
 type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any 

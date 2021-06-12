@@ -10,6 +10,7 @@ const filesToInclude = [
     "./types/state.ts",
     "./types/modules.ts",
     "./types/store.ts",
+    "./types/public.ts",
 ]
 
 const vuexModuleDeclaration = declarationFile.addModule({
@@ -36,7 +37,7 @@ for (let file of filesToInclude) {
         }
 
         if (Structure.isClass(child)) {
-            vuexModuleDeclaration.addClass(child)
+            vuexModuleDeclaration.addClass({ ...child, hasDeclareKeyword: false })
         }
 
         if (Structure.isTypeAlias(child)) {
