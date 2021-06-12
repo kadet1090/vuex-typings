@@ -489,9 +489,26 @@ store.load('load', 0) // should be an error as payload must be an array of strin
 It is also possible to turn off type safety by explicitly providing `any` type to `createStore`, which could be useful when dealing with highly dynamic stores. 
 
 ## Can I use it in my project?
-For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. Because of that there is no easy to use way - you can however use computer-generated [`vuex.d.ts` file](./vuex.d.ts). Just copy it to your project's directory and reference it with triple-slash directive:
+For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. Because of that there is no easy to use way - you can however use computer-generated [`vuex.d.ts` file](./vuex.d.ts). 
+
+As this typings are not compatible with official ones you must provide full path to this file in the `tsconfig.json` file like so:
+
+```json
+{
+  "compilerOptions": {
+    ...
+    "paths": {
+      "vuex": ["path/to/vuex.d.ts"]
+    }
+  },
+  ...
+}
+```
+
+To enable Vuex integration with Vue you should also copy [`vue.d.ts` file](./vue.d.ts) and reference it using the triple slash directive:
+
 ```typescript
-/// <reference path="path/to/vuex.d.ts" />
+/// <reference path="path/to/vue.d.ts" />
 ```
 
 ## Full Example
