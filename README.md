@@ -314,11 +314,12 @@ Getters are, to put simply, just computer properties of state accessible by some
 
 ```typescript
 export type VuexGettersTree<TModule extends VuexModule = any>
-  = { [name: string]: VuexGetter<TModule, any, any>; }
+  = { [name: string]: VuexGetter<TModule, any, any, any>; }
 
 export type VuexGetter<
   TModule extends VuexModule, 
   TResult, 
+  TRoot extends VuexModule = any,
   TGetters = VuexGetters<TModule>
 > 
 ```
@@ -328,11 +329,13 @@ Definition and implementation of getter tree is simple:
 type FooGettersTree = {
   first: VuexGetter<FooModule, string>
   firstCapitalized: VuexGetter<FooModule, string>,
+  rooted: VuexGetter<FooModule, string, MyStore>, // allows referencing root module
 }
 
 const getters: FooGettersTree = {
   first: state => state.list[0], // state is correctly typed
   firstCapitalized: (_, getters) => getters.first.toUpperCase(), // getters too!
+  rooted: (state, getters, rootState, rootGetters) => rootState.global + rootGetters.globalGetter, // and global state!
 }
 ```
 
@@ -551,8 +554,9 @@ type FooActionsTree = {
 }
 
 type FooGettersTree = {
-  first: VuexGetter<FooModule, string>
+  first: VuexGetter<FooModule, string>,
   firstCapitalized: VuexGetter<FooModule, string>,
+  rooted: VuexGetter<FooModule, string, MyStore>,
 }
 
 type BarMutationTree = {
@@ -652,6 +656,7 @@ store.subscribeAction({
 let fooGetters: FooGettersTree = {
   first: state => state.list[0], // state is correctly typed
   firstCapitalized: (_, getters) => getters.first.toUpperCase(), // getters too!
+  rooted: (_, __, rootState, rootGetters) => rootState.global + rootGetters.globalGetter, // and global state!
 }
 
 let fooActions: FooActionsTree = {
@@ -674,7 +679,7 @@ let fooActions: FooActionsTree = {
     return [];
   },
   async refresh(context) {
-    // simple actions to not require return type!
+    // simple actions do not require return type!
   }
 }
 

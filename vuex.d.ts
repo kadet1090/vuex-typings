@@ -158,8 +158,8 @@ declare module "vuex" {
     export type VuexMutationPayload<TModule extends VuexModule, TMutation extends VuexMutationTypes<TModule>, TPrefix extends string = never> = VuexMutationByName<TModule, TMutation, TPrefix> extends VuexMutation<TMutation, infer TPayload>
           ? TPayload
           : never;
-    export type VuexGettersTree<TModule extends VuexModule = any> = { [name: string]: VuexGetter<TModule, any, any>; };
-    export type VuexGetter<TModule extends VuexModule<any, any, any, any>, TResult, TGetters = VuexGetters<TModule>> = (state: VuexState<TModule>, getters: TGetters) => TResult;
+    export type VuexGettersTree<TModule extends VuexModule = any, TRoot extends VuexModule = any> = { [name: string]: VuexGetter<TModule, any, TRoot, any>; };
+    export type VuexGetter<TModule extends VuexModule<any, any, any, any>, TResult, TRoot extends VuexModule<any, any, any, any> = any, TGetters = VuexGetters<TModule>> = (state: VuexState<TModule>, getters: TGetters, rootState: VuexState<TRoot>, rootGetters: VuexGetters<TRoot>) => TResult;
     export type VuexOwnGetters<TModule extends VuexModule, TPrefix extends string = never> = { [TGetter in keyof TModule["getters"] as `${AddPrefix<string & TGetter, TPrefix>}`]: ReturnType<TModule["getters"][TGetter]> };
     export type VuexModulesGetters<TModules extends VuexModulesTree, TPrefix extends string = never> = (TModules extends never ? true : false) extends false
           ? UnionToIntersection<{ 
@@ -196,6 +196,50 @@ declare module "vuex" {
     export type VuexModule<TState extends {} = {}, TMutations extends VuexMutationsTree<TState> = VuexMutationsTree<TState>, TActions extends VuexActionsTree = VuexActionsTree, TGetters extends VuexGettersTree = VuexGettersTree, TModules extends VuexModulesTree = {}> = GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>
           | NamespacedVuexModule<TState, TMutations, TActions, TGetters, TModules>;
     export type VuexModulesTree = { [name: string]: VuexModule<any, any, any, any, any> };
+    export type VuexModulePathOwn<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never> = [TPrefix] extends [never]
+          ? keyof TModule["modules"] 
+          | { [TName in keyof TModule["modules"]]: [TName] }[keyof TModule["modules"]]
+          : { [TName in keyof TModule["modules"]]: [ ...TPrefix, TName ] }[keyof TModule["modules"]];
+    export type VuexModulePathModules<TModules, TPrefix extends string[] = never> = { 
+            [TModule in keyof TModules]: 
+              VuexModulePathOwn<
+                TModules[TModule], 
+                [TPrefix] extends [never] ? [TModule & string] : [...TPrefix, TModule & string]
+              > 
+          }[keyof TModules];
+    export type VuexModulesWithPath<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never> = VuexModulesWithPathOwn<TModule, TPrefix>
+          | VuexModulesWithPathModules<TModule["modules"], TPrefix>;
+    export type VuexModulesWithPathOwn<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never> = [TPrefix] extends [never]
+          ? { 
+            [TName in keyof TModule["modules"]]: { 
+              path: [TName], 
+              definition: TModule["modules"][TName] 
+            } 
+          }[keyof TModule["modules"]]
+          : { 
+            [TName in keyof TModule["modules"]]: {
+              path: [ ...TPrefix, TName ],
+              definition: TModule["modules"][TName] 
+            }
+          }[keyof TModule["modules"]];
+    export type VuexModulesWithPathModules<TModules, TPrefix extends string[] = never> = { 
+            [TModule in keyof TModules]: 
+              VuexModulesWithPathOwn<
+                TModules[TModule], 
+                [TPrefix] extends [never] ? [TModule & string] : [...TPrefix, TModule & string]
+              > 
+          }[keyof TModules];
+    export type VuexModulePath<TModule extends VuexModule<any, any, any, any>, TPrefix extends string[] = never> = VuexModulePathOwn<TModule, TPrefix>
+          | VuexModulePathModules<TModule["modules"], TPrefix>;
+    export type VuexModuleByPath<TModule extends VuexModule<any, any, any, any>, TPath extends VuexModulePath<TModule>> = Extract<
+            { path: TPath, definition: any }, 
+            VuexModulesWithPath<TModule>
+          >["definition"];
+
+    export interface VuexModuleOptions {
+        preserveState?: boolean;
+    }
+
     export type VuexPlugin<TStore> = (store: TStore) => any;
     export type VuexStoreDefinition<TState extends {} = any, TMutations extends VuexMutationsTree = VuexMutationsTree, TActions extends VuexActionsTree = VuexActionsTree, TGetters extends VuexGettersTree = VuexGettersTree, TModules extends VuexModulesTree = {} | undefined> = Omit<GlobalVuexModule<TState, TMutations, TActions, TGetters, TModules>, "namespaced">
           & {
@@ -236,7 +280,7 @@ declare module "vuex" {
         new(definition: TDefinition);
         commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
         dispatch: VuexDispatch<TDefinition>;
-        getters: VuexGetters<TDefinition>;constructor
+        getters: VuexGetters<TDefinition>;
         state: VuexState<TDefinition>;
         replaceState(state: VuexState<TDefinition>): void;
         hotUpdate(options: {
@@ -248,6 +292,9 @@ declare module "vuex" {
         watch<T>(getter: VuexGetter<TDefinition, T>, callback: (value: T, oldValue: T) => void, options?: VuexWatchOptions): VuexUnsubscribeFunction;
         subscribe(mutation: VuexMutationSubscriber<TDefinition>, options?: VuexSubscribeOptions): VuexUnsubscribeFunction;
         subscribeAction(mutation: VuexActionSubscriber<TDefinition>, options?: VuexSubscribeOptions): VuexUnsubscribeFunction;
+        registerModule<TPath extends VuexModulePath<TDefinition>>(path: TPath, module: VuexModuleByPath<TDefinition, TPath>, options?: VuexModuleOptions): void;
+        unregisterModule(path: VuexModulePath<TDefinition>): void;
+        hasModule(path: VuexModulePath<TDefinition>): boolean;
     }
 
     export function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;
@@ -289,3 +336,5 @@ type IsRequired<T> = unknown extends T
       : [T] extends [never]
       ? false
       : true;
+type OneOrMany<T> = T 
+      | T[];

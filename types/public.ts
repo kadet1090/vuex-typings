@@ -1,4 +1,5 @@
-import { VuexStore, VuexStoreDefinition } from "./store";
+import { VuexModule } from "./modules";
+import { VuexOwnState } from "./state";import { VuexStore, VuexStoreDefinition } from "./store";
 
 export declare function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;
 export declare function install(...args: any[]): any;

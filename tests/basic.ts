@@ -51,6 +51,7 @@ type FooActionsTree = {
 type FooGettersTree = {
   first: VuexGetter<FooModule, string>
   firstCapitalized: VuexGetter<FooModule, string>,
+  rooted: VuexGetter<FooModule, string, MyStore>
 }
 
 type BarMutationTree = {
@@ -76,6 +77,9 @@ type MyStore = Validate<VuexStoreDefinition, {
     bar: BarModule,
     anotherFoo: FooModule,
   },
+  getters: {
+    globalGetter: VuexGetter<MyStore, string>
+  }
 }>
 
 // test
@@ -157,7 +161,8 @@ store.subscribeAction({
 // getters with backreference
 let fooGetters: FooGettersTree = {
   first: state => state.list[0], // state is correctly typed
-  firstCapitalized: (_, getters) => getters.first.toUpperCase(), // getters too!
+  firstCapitalized: (_, getters, rootState, rootGetters) => getters.first.toUpperCase(), // getters too!
+  rooted: (_, __, rootState, rootGetters) => rootState.global + rootGetters.globalGetter, // and global state!
 }
 
 let fooActions: FooActionsTree = {
