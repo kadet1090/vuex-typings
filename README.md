@@ -764,6 +764,12 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
      - [x] Unregistration `unregisterModule`
      - [x] Presence check `hasModule`
    - [x] Hot Update - it's not type safe so it's declared loosely
+   - [ ] Helpers
+     - [ ] `mapState<TModule>`
+     - [ ] `mapMutations<TModule>`
+     - [ ] `mapGetters<TModule>`
+     - [ ] `mapActions<TModule>`
+     - [ ] `createNamespaceHelpers<TModule>`
 
 ## License
 MIT
