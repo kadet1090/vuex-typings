@@ -1,9 +1,9 @@
 import { WatchOptions } from "vue";
 import { VuexActions, VuexActionsTree, VuexDispatch } from "./actions";
 import { VuexGetter, VuexGetters, VuexGettersTree } from "./getters";
-import { OneOrMany } from "./helpers";
 import { GlobalVuexModule, VuexModuleByPath, VuexModuleOptions, VuexModulePath, VuexModulesTree } from "./modules";
 import { VuexArgumentStyleCommit, VuexMutations, VuexMutationsTree, VuexObjectStyleCommit } from "./mutations";
+import { InstallFunction } from "./public";
 import { VuexState } from "./state";
 
 export type VuexPlugin<TStore> 
@@ -55,6 +55,9 @@ export type VuexUnsubscribeFunction = () => void
 
 export interface VuexStore<TDefinition extends VuexStoreDefinition> {
   new (definition: TDefinition);
+
+  // vuex 4
+  install: InstallFunction;
 
   commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
   dispatch: VuexDispatch<TDefinition>;

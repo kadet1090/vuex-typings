@@ -278,6 +278,7 @@ declare module "vuex" {
 
     export interface VuexStore<TDefinition extends VuexStoreDefinition> {
         new(definition: TDefinition);
+        install: InstallFunction;
         commit: VuexArgumentStyleCommit<TDefinition> & VuexObjectStyleCommit<TDefinition>;
         dispatch: VuexDispatch<TDefinition>;
         getters: VuexGetters<TDefinition>;
@@ -300,6 +301,8 @@ declare module "vuex" {
     export function createStore<TDefinition extends VuexStoreDefinition>(definition: TDefinition): VuexStore<TDefinition>;
 
     export function install(...args: any[]): any;
+
+    export type InstallFunction = typeof install;
 
     export class Store<TDefinition extends VuexStoreDefinition> {
         constructor(definition: TDefinition);
