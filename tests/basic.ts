@@ -133,7 +133,7 @@ store.watch(state => state.global, (value, oldValue) => value.toLowerCase() !== 
 store.watch((_, getters) => getters['foo/first'], (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
 
 store.subscribe(mutation => {
-  // properly detects payload type based on mutaiton kind
+  // properly detects payload type based on mutation kind
   if (mutation.type === "anotherFoo/sub/dec") {
     const number = mutation.payload; // typeof number = number
   } else if (mutation.type === "anotherFoo/added") {
