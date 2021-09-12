@@ -1,4 +1,4 @@
-import { VuexModule, VuexModulePath, VuexActionPayload, VuexActionTypes, VuexDispatch } from "..";
+import { VuexModule, VuexActionPayload, VuexActionTypes, VuexDispatch, VuexModuleNamespace, VuexModuleByNamespace } from "..";
 import { ArrayEntries, IsRequired } from "../helpers";
 
 type VuexActionsObjectMapping<TModule extends VuexModule>
@@ -52,7 +52,7 @@ export interface VuexBoundMapActionsHelper<TModule extends VuexModule> {
 }
 
 export interface VuexMapActionsHelper<TModule extends VuexModule> extends VuexBoundMapActionsHelper<TModule> {
-  <TPath extends VuexModulePath<TModule>, TMapping extends VuexActionsMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedActions<TModule, TMapping>;
+  <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexActionsMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedActions<TNamespaced, TMapping>;
 }
 
 export declare const mapActions: VuexMapActionsHelper<any>;

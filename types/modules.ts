@@ -1,6 +1,6 @@
 import { VuexActionsTree } from "./actions";
 import { VuexGettersTree } from "./getters";
-import { OneOrMany, UndefinedToOptional } from "./helpers";
+import { AddPrefix, OneOrMany, UndefinedToOptional, UnionToIntersection } from "./helpers";
 import { VuexMutationsTree } from "./mutations";
 import { VuexStateProvider } from "./state";
 
@@ -100,6 +100,26 @@ export type VuexModuleByPath<TModule extends VuexModule<any, any, any, any>, TPa
     { path: TPath, definition: any }, 
     VuexModulesWithPath<TModule>
   >["definition"]
+
+export type VuexModuleByNamespaceOwn<TModule extends VuexModule, TPrefix extends string = never>
+  = { 
+    [TName in keyof TModule["modules"] as AddPrefix<TName & string, TPrefix>]: TModule["modules"][TName]
+  }
+
+export type VuexModuleByNamespaceModules<TModules, TPrefix extends string = never>
+  = UnionToIntersection<{ 
+    [TName in keyof TModules]: VuexModuleByNamespace<
+      TModules[TName], 
+      AddPrefix<TName & string, TPrefix>
+    >
+  }[keyof TModules]>
+
+export type VuexModuleByNamespace<TModule extends VuexModule, TPrefix extends string = never> 
+  = VuexModuleByNamespaceOwn<TModule, TPrefix>
+  & VuexModuleByNamespaceModules<TModule["modules"], TPrefix>
+
+export type VuexModuleNamespace<TModule extends VuexModule, TPrefix extends string = never>
+  = keyof VuexModuleByNamespace<TModule, TPrefix>
 
 export interface VuexModuleOptions {
   preserveState?: boolean;

@@ -1,4 +1,4 @@
-import { VuexModule, VuexModulePath, VuexState } from "..";
+import { VuexModule, VuexModuleByNamespace, VuexModuleNamespace, VuexState } from "..";
 import { ArrayEntries, PickByValue } from "../helpers";
 
 type VuexStateObjectMapping<TModule extends VuexModule>
@@ -50,7 +50,7 @@ export interface VuexBoundMapStateHelper<TModule extends VuexModule> {
 }
 
 export interface VuexMapStateHelper<TModule extends VuexModule> extends VuexBoundMapStateHelper<TModule> {
-  <TPath extends VuexModulePath<TModule>, TMapping extends VuexStateMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedState<TModule, TMapping>;
+  <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexStateMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedState<TNamespaced, TMapping>;
 }
 
 export declare const mapState: VuexMapStateHelper<any>;

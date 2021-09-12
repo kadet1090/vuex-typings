@@ -1,4 +1,4 @@
-import { VuexCommit, VuexModule, VuexModulePath, VuexMutationPayload, VuexMutationTypes } from "..";
+import { VuexCommit, VuexModule, VuexModuleByNamespace, VuexModuleNamespace, VuexModulePath, VuexMutationPayload, VuexMutationTypes } from "..";
 import { ArrayEntries, IsRequired } from "../helpers";
 
 type VuexMutationsObjectMapping<TModule extends VuexModule>
@@ -52,7 +52,7 @@ export interface VuexBoundMapMutationsHelper<TModule extends VuexModule> {
 }
 
 export interface VuexMapMutationsHelper<TModule extends VuexModule> extends VuexBoundMapMutationsHelper<TModule> {
-  <TPath extends VuexModulePath<TModule>, TMapping extends VuexMutationsMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedMutations<TModule, TMapping>;
+  <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexMutationsMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedMutations<TNamespaced, TMapping>;
 }
 
 export declare const mapMutations: VuexMapMutationsHelper<any>;

@@ -10,73 +10,65 @@ import {
   VuexMutationHandler,
   VuexMutationPayload,
   VuexStoreDefinition,
-  mapState,
-  VuexMapStateHelper,
-  mapGetters,
-  VuexMapGettersHelper,
-  mapMutations, 
-  VuexMapMutationsHelper,
-  mapActions, 
-  VuexMapActionsHelper 
 } from "../types"
 import { Validate } from "../types/helpers"
 
 // example store definition
-type FooState = { list: string[] }
-type BarState = { result: string }
-type BazState = { current: number }
+export type FooState = { list: string[] }
+export type BarState = { result: string }
+export type BazState = { current: number }
 
-enum FooMutations {
+export enum FooMutations {
   Added = "added",
   Removed = "removed",
 }
 
-enum FooActions {
+export enum FooActions {
   Refresh = "refresh",
   Load = "load",
 }
 
-enum BarMutations {
+export enum BarMutations {
   Fizz = "fizz",
   Buzz = "buzz",
 }
 
-enum BazMutations {
+export enum BazMutations {
   Inc = "inc",
   Dec = "dec",
 }
 
-type FooMutationTree = {
+export type FooMutationTree = {
   [FooMutations.Added]: VuexMutationHandler<FooState, string, MyStore>
   [FooMutations.Removed]: VuexMutationHandler<FooState, number, MyStore>
 }
 
-type FooActionsTree = {
+export type FooActionsTree = {
   [FooActions.Refresh]: VuexActionHandler<FooModule, never, Promise<void>, MyStore>,
   [FooActions.Load]: VuexActionHandler<FooModule, string[], Promise<string[]>, MyStore>,
 }
 
-type FooGettersTree = {
+export type FooGettersTree = {
   first: VuexGetter<FooModule, string>
   firstCapitalized: VuexGetter<FooModule, string>,
   rooted: VuexGetter<FooModule, string, MyStore>
 }
 
-type BarMutationTree = {
+export type BarMutationTree = {
   [BarMutations.Fizz]: VuexMutationHandler<BarState, number>;
   [BarMutations.Buzz]: VuexMutationHandler<BarState>;
 }
 
-type BazMutationTree = {
+export type BazMutationTree = {
   [BazMutations.Inc]: VuexMutationHandler<BazState, number>;
   [BazMutations.Dec]: VuexMutationHandler<BazState, number>;
 }
 
-type FooModule = NamespacedVuexModule<FooState, FooMutationTree, FooActionsTree, FooGettersTree, { sub: BazModule }>;
-type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
-type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
+export type FooModule = NamespacedVuexModule<FooState, FooMutationTree, FooActionsTree, FooGettersTree, { sub: BazModule }>;
+export type BarModule = GlobalVuexModule<BarState, BarMutationTree>;
+export type BazModule = NamespacedVuexModule<BazState, BazMutationTree>;
 
-type MyStore = Validate<VuexStoreDefinition, {
+export type MyStore = Validate<VuexStoreDefinition, {
   state: {
     global: string;
   },
@@ -91,7 +83,7 @@ type MyStore = Validate<VuexStoreDefinition, {
 }>
 
 // test
-let store = createStore<MyStore>({} as any)
+const store = createStore<MyStore>({} as any)
 
 // global state
 expectType<string>(store.state.global);
@@ -233,46 +225,3 @@ type PayloadOfFooAddedMutation = VuexMutationPayload<MyStore, "foo/added">; // s
 
 type PayloadOfFooLoadAction = VuexActionPayload<MyStore, "foo/load">; // string[]
 type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
-
-const helpers = { 
-  mapState: mapState as VuexMapStateHelper<MyStore>,
-  mapGetters: mapGetters as VuexMapGettersHelper<MyStore>,
-  mapMutations: mapMutations as any as VuexMapMutationsHelper<MyStore>,
-  mapActions: mapActions as any as VuexMapActionsHelper<MyStore>,
-}
-
-const state = helpers.mapState({ 
-  mappedGlobal: "global",
-  mappedByFunction: state => state.foo.list
-});
-
-expectType<() => string>(state.mappedGlobal)
-expectType<() => string[]>(state.mappedByFunction)
-
-const getters = helpers.mapGetters({ 
-  mappedFooFirst: "foo/first"
-});
-
-expectType<() => string>(getters.mappedFooFirst)
-
-const mutations = helpers.mapMutations({ 
-  mappedFooAdded: "foo/added",
-  mappedBuzz: BarMutations.Buzz,
-  mappedFizz: BarMutations.Fizz
-})
-
-mutations.mappedFooAdded("string")
-mutations.mappedFizz(10)
-// @ts-expect-error
-mutations.mappedFizz("string") // wrong argument type
-// @ts-expect-error
-mutations.mappedFizz() // no argument
-mutations.mappedBuzz()
-
-const actions = helpers.mapActions({
-  mappedFooLoad: "foo/load",
-  mappedFooRefresh: "foo/refresh",
-})
-
-actions.mappedFooLoad(["string", "string2"])
-actions.mappedFooRefresh()

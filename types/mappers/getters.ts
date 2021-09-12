@@ -1,4 +1,4 @@
-import { VuexModule, VuexModulePath, VuexGetters } from "..";
+import { VuexModule, VuexGetters, VuexModuleByNamespace, VuexModuleNamespace } from "..";
 import { ArrayEntries, PickByValue } from "../helpers";
 
 type VuexGettersObjectMapping<TModule extends VuexModule>
@@ -42,7 +42,7 @@ export interface VuexBoundMapGettersHelper<TModule extends VuexModule> {
 }
 
 export interface VuexMapGettersHelper<TModule extends VuexModule> extends VuexBoundMapGettersHelper<TModule> {
-  <TPath extends VuexModulePath<TModule>, TMapping extends VuexGettersMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedGetters<TModule, TMapping>;
+  <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexGettersMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedGetters<TNamespaced, TMapping>;
 }
 
 export declare const mapGetters: VuexMapGettersHelper<any>;

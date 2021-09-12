@@ -235,6 +235,18 @@ declare module "vuex" {
             { path: TPath, definition: any }, 
             VuexModulesWithPath<TModule>
           >["definition"];
+    export type VuexModuleByNamespaceOwn<TModule extends VuexModule, TPrefix extends string = never> = { 
+            [TName in keyof TModule["modules"] as AddPrefix<TName & string, TPrefix>]: TModule["modules"][TName]
+          };
+    export type VuexModuleByNamespaceModules<TModules, TPrefix extends string = never> = UnionToIntersection<{ 
+            [TName in keyof TModules]: VuexModuleByNamespace<
+              TModules[TName], 
+              AddPrefix<TName & string, TPrefix>
+            >
+          }[keyof TModules]>;
+    export type VuexModuleByNamespace<TModule extends VuexModule, TPrefix extends string = never> = VuexModuleByNamespaceOwn<TModule, TPrefix>
+          & VuexModuleByNamespaceModules<TModule["modules"], TPrefix>;
+    export type VuexModuleNamespace<TModule extends VuexModule, TPrefix extends string = never> = keyof VuexModuleByNamespace<TModule, TPrefix>;
 
     export interface VuexModuleOptions {
         preserveState?: boolean;
@@ -331,7 +343,7 @@ declare module "vuex" {
     }
 
     export interface VuexMapStateHelper<TModule extends VuexModule> extends VuexBoundMapStateHelper<TModule> {
-        <TPath extends VuexModulePath<TModule>, TMapping extends VuexStateMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedState<TModule, TMapping>;
+        <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexStateMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedState<TNamespaced, TMapping>;
     }
 
     type VuexMutationsObjectMapping<TModule extends VuexModule> = { [mapped: string]: VuexMutationsMappingEntry<TModule> };
@@ -358,7 +370,7 @@ declare module "vuex" {
     }
 
     export interface VuexMapMutationsHelper<TModule extends VuexModule> extends VuexBoundMapMutationsHelper<TModule> {
-        <TPath extends VuexModulePath<TModule>, TMapping extends VuexMutationsMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedMutations<TModule, TMapping>;
+        <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexMutationsMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedMutations<TNamespaced, TMapping>;
     }
 
     type VuexGettersObjectMapping<TModule extends VuexModule> = { [mapped: string]: VuexGettersMappingEntry<VuexGetters<TModule>> };
@@ -378,7 +390,7 @@ declare module "vuex" {
     }
 
     export interface VuexMapGettersHelper<TModule extends VuexModule> extends VuexBoundMapGettersHelper<TModule> {
-        <TPath extends VuexModulePath<TModule>, TMapping extends VuexGettersMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedGetters<TModule, TMapping>;
+        <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexGettersMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedGetters<TNamespaced, TMapping>;
     }
 
     type VuexActionsObjectMapping<TModule extends VuexModule> = { [mapped: string]: VuexActionsMappingEntry<TModule> };
@@ -405,16 +417,18 @@ declare module "vuex" {
     }
 
     export interface VuexMapActionsHelper<TModule extends VuexModule> extends VuexBoundMapActionsHelper<TModule> {
-        <TPath extends VuexModulePath<TModule>, TMapping extends VuexActionsMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedActions<TModule, TMapping>;
+        <TPath extends VuexModuleNamespace<TModule>, TMapping extends VuexActionsMapping<TNamespaced>, TNamespaced = VuexModuleByNamespace<TModule>[TPath]>(path: TPath, mapping: TMapping): VuexMappedActions<TNamespaced, TMapping>;
     }
 
     export interface VuexNamespaceHelpers<TModule extends VuexModule> {
         mapState: VuexBoundMapStateHelper<TModule>;
         mapGetters: VuexBoundMapGettersHelper<TModule>;
+        mapMutations: VuexBoundMapMutationsHelper<TModule>;
+        mapActions: VuexBoundMapActionsHelper<TModule>;
     }
 
     export interface VuexCreateNamespacedHelpers<TModule extends VuexModule> {
-        <TPath extends VuexModulePath<TModule>>(path: TPath): VuexNamespaceHelpers<VuexModuleByPath<TModule, TPath>>;
+        <TPath extends VuexModuleNamespace<TModule>>(path: TPath): VuexNamespaceHelpers<VuexModuleByNamespace<TModule>[TPath]>;
     }
 }
 
