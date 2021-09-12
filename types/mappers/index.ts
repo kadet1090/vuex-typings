@@ -1,8 +1,10 @@
 import { VuexModule, VuexModuleByPath, VuexModulePath } from "..";
 import { VuexBoundMapStateHelper } from "./state";
+import { VuexBoundMapGettersHelper } from "./getters";
 
 export interface VuexNamespaceHelpers<TModule extends VuexModule> {
   mapState: VuexBoundMapStateHelper<TModule>;
+  mapGetters: VuexBoundMapGettersHelper<TModule>;
 }
 
 export interface VuexCreateNamespacedHelpers<TModule extends VuexModule> {
@@ -12,3 +14,4 @@ export interface VuexCreateNamespacedHelpers<TModule extends VuexModule> {
 export declare const createNamespacedHelpers: VuexCreateNamespacedHelpers<any>;
 
 export * from "./state";
+export * from "./getters";

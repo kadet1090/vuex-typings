@@ -774,7 +774,7 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
    - [ ] Helpers
      - [x] `mapState<TModule>` in form of `VuexMapStateHelper<TModule>`
      - [ ] `mapMutations<TModule>`
-     - [ ] `mapGetters<TModule>`
+     - [x] `mapGetters<TModule>` in form of `VuexMapGettersHelper<TModule>`
      - [ ] `mapActions<TModule>`
      - [x] `createNamespaceHelpers<TModule>` in form of `VuexCreateNamespacedHelpers<TModule>`
 
