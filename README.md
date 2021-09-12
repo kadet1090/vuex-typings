@@ -2,6 +2,29 @@
 
 This project is a Proof of Concept for creating strongly typed Vuex Stores by utilizing [template literal types] feature available in typescript. End goal is to reimplement all [vuex types] for better type-checking and autocompletion without external modules. By convention this project prefixes all the Vuex related types with `Vuex`.
 
+## Can I use it in my project?
+For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. Because of that there is no easy to use way - you can however use computer-generated [`vuex.d.ts` file](./vuex.d.ts). 
+
+As this typings are not compatible with official ones you must provide full path to this file in the `tsconfig.json` file like so:
+
+```json
+{
+  "compilerOptions": {
+    ...
+    "paths": {
+      "vuex": ["path/to/vuex.d.ts"]
+    }
+  },
+  ...
+}
+```
+
+To enable Vuex integration with Vue you should also copy [`vue.d.ts` file](./vue.d.ts) and reference it using the triple slash directive:
+
+```typescript
+/// <reference path="path/to/vue.d.ts" />
+```
+
 ## Usage
 The core idea for this set of types can be simply described as `type first`. You should start designing your store from contract, and your store should implement this contract - not the other way around. As from this package point of view the store is just a vuex module with extra stuff, and I will use word `store` to refer to both store and module.
 
@@ -491,28 +514,39 @@ store.load('load', 0) // should be an error as payload must be an array of strin
 
 It is also possible to turn off type safety by explicitly providing `any` type to `createStore`, which could be useful when dealing with highly dynamic stores. 
 
-## Can I use it in my project?
-For now I consider this project as proof of concept that have to be further validated and polished as it have some quirks that makes this project unnecessarily cumbersome to use. Because of that there is no easy to use way - you can however use computer-generated [`vuex.d.ts` file](./vuex.d.ts). 
-
-As this typings are not compatible with official ones you must provide full path to this file in the `tsconfig.json` file like so:
-
-```json
-{
-  "compilerOptions": {
-    ...
-    "paths": {
-      "vuex": ["path/to/vuex.d.ts"]
-    }
-  },
-  ...
-}
-```
-
-To enable Vuex integration with Vue you should also copy [`vue.d.ts` file](./vue.d.ts) and reference it using the triple slash directive:
+### Component Binding Helpers
+Vuex provides handy [Component Binding Helpers] that can be used for easily mapping state, getters, mutations and actions into component. Those helpers are also strictly typed. Unfortunately, until typescript has proper partial infering support (see issue [#10571](https://github.com/microsoft/TypeScript/issues/10571)) it's not possible to use syntax like `mapState<MyStore>(...)`. By default helpers are bound non-type-safely to any module, and to enable type safety it's required to re-export them with proper type applied. This could be done in the same file as store definition, for example:
 
 ```typescript
-/// <reference path="path/to/vue.d.ts" />
+import { 
+  mapState as mapStateLoosely, 
+  mapGetters as mapGettersLoosely, 
+  mapMutations as mapMutationsLoosely, 
+  mapActions as mapActionsLoosely, 
+  createNamespacedHelpers as createLooseNamespacedHelpers,
+  VuexMapStateHelper,
+  VuexMapGettersHelper,
+  VuexMapMutationsHelper,
+  VuexMapActionsHelper, 
+  VuexCreateNamespacedHelpers
+} from "vuex";
+
+type MyStore = { ... }
+
+// as any step is required so typescript does not try to check type 
+// compatibility, which can cause infinite loop in compiler
+export const mapState = mapStateLoosely as any as VuexMapStateHelper<MyStore>;
+export const mapGetters = mapGettersLoosely as any as VuexMapGettersHelper<MyStore>;
+export const mapMutations = mapMutationsLoosely as any as VuexMapMutationsHelper<MyStore>;
+export const mapActions = mapActionsLoosely as any as VuexMapActionsHelper<MyStore>;
+export const createNamespacedHelpers = createLooseNamespacedHelpers as any as VuexCreateNamespacedHelpers<MyStore>;
 ```
+
+Then you should be able to import those wrappers with typing applied and use type-safe helpers.
+
+## Gotchas and caveats
+1. This types are quite complex, errors can be overwhelming and hard to understand.
+2. This types _are complex_ and occasionally you can face some bugs in the compiler that will cause it to stop responding and loop infinitely.
 
 ## Full Example
 This example is taken from the [tests/basic.ts](./tests/basic.ts) file and could be interactively tested using vscode or other editor with decent support of typescript language server.
@@ -745,7 +779,7 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
    - Basically `VuexGlobalModule` with additional things
    - [x] Plugins `VuexPlugin<TStoreDefinition>`
    - [x] Simple properties (`devtools`, etc.)
- - [ ] Store instance `VuexStore<TStoreDefinition>`
+ - [x] Store instance `VuexStore<TStoreDefinition>`
    - [x] Constructor
      - [x] Store Options `VuexStoreDefinition`
    - [x] State (as defined by TStoreDefinition)
@@ -783,3 +817,4 @@ MIT
 
 [template literal types]: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-1.html#template-literal-types
 [vuex types]: https://github.com/vuejs/vuex/blob/4.0/types/index.d.ts
+[Component Binding Helpers]: https://next.vuex.vuejs.org/api/#component-binding-helpers
