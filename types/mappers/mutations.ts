@@ -1,5 +1,5 @@
 import { VuexCommit, VuexModule, VuexModulePath, VuexMutationPayload, VuexMutationTypes } from "..";
-import { ArrayEntries } from "../helpers";
+import { ArrayEntries, IsRequired } from "../helpers";
 
 type VuexMutationsObjectMapping<TModule extends VuexModule>
   = { [mapped: string]: VuexMutationsMappingEntry<TModule> }
@@ -25,10 +25,15 @@ export type VuexMappedMutations<
   : TMapping extends VuexMutationsArrayMapping<TModule> ? VuexMappedMutationsFromArray<TModule, TMapping>
   : never
 
+type VuexMappedMutationByName<TModule extends VuexModule, TAction extends VuexMutationTypes<TModule>>
+ = true extends IsRequired<VuexMutationPayload<TModule, TAction>>
+ ? (payload: VuexMutationPayload<TModule, TAction>) => void
+ : (payload?: VuexMutationPayload<TModule, TAction>) => void
+
 export type VuexMappedMutation<
   TModule extends VuexModule, 
   TAction extends VuexMutationsMappingEntry<TModule>
-> = TAction extends VuexMutationTypes<TModule> ? (payload: VuexMutationPayload<TModule, TAction>) => void
+> = TAction extends VuexMutationTypes<TModule> ? VuexMappedMutationByName<TModule, TAction>
   : TAction extends VuexMutationsMappingFunctionEntry<TModule, infer TArgs> ? (...args: TArgs) => void 
   : unknown
 

@@ -1,3 +1,4 @@
+import { expectType } from "ts-expect"
 import {
   createStore,
   GlobalVuexModule,
@@ -15,7 +16,10 @@ import {
   VuexMapStateHelper,
   mapGetters,
   VuexMapGettersHelper,
-  VuexCommit
+  VuexCommit,
+  VuexModulesMutations,
+  VuexMutations,
+  VuexOwnMutations
 } from "../types"
 import { Validate } from "../types/helpers"
 import { mapMutations, VuexMapMutationsHelper, VuexMappedMutation, VuexMappedMutations } from "../types/mappers/mutations"
@@ -92,9 +96,34 @@ type MyStore = Validate<VuexStoreDefinition, {
 // test
 let store = createStore<MyStore>({} as any)
 
+// global state
+expectType<string>(store.state.global);
+
+// from global module
+expectType<string>(store.state.bar.result);
+
+// state of namespaced modules
+expectType<string[]>(store.state.foo.list)
+expectType<string[]>(store.state.anotherFoo.list)
+
+// state of nested modules
+expectType<number>(store.state.foo.sub.current)
+expectType<number>(store.state.anotherFoo.sub.current)
+
 // should check and auto complete
 store.commit("foo/added", "test");
 store.commit({ type: "foo/added", payload: "test" });
+
+store.commit("anotherFoo/added", "test");
+store.commit({ type: "anotherFoo/added", payload: "test" });
+
+store.commit("foo/sub/inc", 10);
+store.commit({ type: "foo/sub/dec", payload: 10 });
+
+store.commit(BarMutations.Fizz, 10);
+store.commit({ type: BarMutations.Fizz, payload: 10 });
+store.commit(BarMutations.Buzz);
+store.commit({ type: BarMutations.Buzz });
 
 // @ts-expect-error
 store.commit("foo/added", 9);
@@ -131,7 +160,12 @@ store.replaceState({
 })
 
 // getters also work
-store.getters['anotherFoo/first'];
+expectType<string>(store.getters['foo/first']);
+expectType<string>(store.getters['anotherFoo/first']);
+expectType<string>(store.getters['foo/firstCapitalized']);
+expectType<string>(store.getters['globalGetter'])
+expectType<string>(store.getters['foo/rooted'])
+expectType<any>(store.getters['non-existent']);
 
 // watch state is properly typed
 store.watch(state => state.global, (value, oldValue) => value.toLowerCase() !== oldValue.toLowerCase())
@@ -214,10 +248,25 @@ const state = helpers.mapState({
   mappedByFunction: state => state.foo.list
 });
 
+expectType<() => string>(state.mappedGlobal)
+expectType<() => string[]>(state.mappedByFunction)
+
 const getters = helpers.mapGetters({ 
   mappedFooFirst: "foo/first"
 });
 
-const mutations = helpers.mapMutations({ mappedFooAdded: "foo/added" })
+expectType<() => string>(getters.mappedFooFirst)
+
+const mutations = helpers.mapMutations({ 
+  mappedFooAdded: "foo/added",
+  mappedBuzz: BarMutations.Buzz,
+  mappedFizz: BarMutations.Fizz
+})
 
 mutations.mappedFooAdded("string")
+mutations.mappedFizz(10)
+// @ts-expect-error
+mutations.mappedFizz("string") // wrong argument type
+// @ts-expect-error
+mutations.mappedFizz() // no argument
+mutations.mappedBuzz()

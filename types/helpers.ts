@@ -4,8 +4,8 @@ export type UnionToIntersection<T>
   : never
 
 export type AddPrefix<TValue extends string, TPrefix extends string = never> 
-  = [TPrefix] extends [never] 
-  ? TValue 
+  = [TPrefix] extends [never] ? TValue 
+  : [TValue] extends [never] ? TPrefix
   : `${TPrefix}/${TValue}`
 
 export type OptionalPropertyNames<T> 
