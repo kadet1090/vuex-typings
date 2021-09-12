@@ -769,12 +769,14 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
      - [x] Unregistration `unregisterModule`
      - [x] Presence check `hasModule`
    - [x] Hot Update - it's not type safe so it's declared loosely
+   - [ ] Composition api helpers
+     - [ ] `useStore<TKey extends VuexInjectionKey<TStore>, TStore>(key: TKey): VuexStore<TStore>`
    - [ ] Helpers
-     - [ ] `mapState<TModule>`
+     - [x] `mapState<TModule>` in form of `VuexMapStateHelper<TModule>`
      - [ ] `mapMutations<TModule>`
      - [ ] `mapGetters<TModule>`
      - [ ] `mapActions<TModule>`
-     - [ ] `createNamespaceHelpers<TModule>`
+     - [x] `createNamespaceHelpers<TModule>` in form of `VuexCreateNamespacedHelpers<TModule>`
 
 ## License
 MIT

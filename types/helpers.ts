@@ -36,13 +36,21 @@ export type UndefinedKeys<T extends {}>
 export type OmitUndefinedKeys<T extends {}>
   = Omit<T, UndefinedKeys<T>>
 
+export type KeysMatching<TObject, TPattern> 
+  = { 
+    [TProp in keyof TObject]: TObject[TProp] extends TPattern ? TProp : never
+  }[keyof TObject]
+
+export type PickByValue<TObject, TPattern>
+  = Pick<TObject, KeysMatching<TObject, TPattern>>
+
+export type ArrayEntries<TArray extends TType[], TType = string>
+  = Extract<TArray[keyof TArray], TType>
+
 export type IsRequired<T> 
-  = unknown extends T 
-  ? false 
-  : [T] extends [undefined] 
-  ? false
-  : [T] extends [never]
-  ? false
+  = unknown extends T ? false 
+  : [T] extends [undefined] ? false
+  : [T] extends [never] ? false
   : true
 
 export type OneOrMany<T> 

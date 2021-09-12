@@ -11,6 +11,8 @@ const filesToInclude = [
     "./types/modules.ts",
     "./types/store.ts",
     "./types/public.ts",
+    "./types/mappers/state.ts",
+    "./types/mappers/index.ts",
 ]
 
 const vuexModuleDeclaration = declarationFile.addModule({

@@ -9,7 +9,10 @@ import {
   VuexModulesWithPath,
   VuexMutationHandler,
   VuexMutationPayload,
-  VuexStoreDefinition
+  VuexStoreDefinition,
+  createNamespacedHelpers,
+  mapState,
+  VuexMapStateHelper
 } from "../types"
 import { Validate } from "../types/helpers"
 
@@ -195,3 +198,11 @@ type PayloadOfFooAddedMutation = VuexMutationPayload<MyStore, "foo/added">; // s
 
 type PayloadOfFooLoadAction = VuexActionPayload<MyStore, "foo/load">; // string[]
 type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
+
+const helpers = { mapState: mapState as VuexMapStateHelper<MyStore> }
+const state = helpers.mapState({ 
+  mappedGlobal: "global",
+  mappedByFunction: state => state.foo.list
+});
+
+const mapped = state.mappedGlobal;
