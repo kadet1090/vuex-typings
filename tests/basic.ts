@@ -7,22 +7,19 @@ import {
   VuexActionPayload,
   VuexActionResult,
   VuexGetter,
-  VuexModulesWithPath,
   VuexMutationHandler,
   VuexMutationPayload,
   VuexStoreDefinition,
-  createNamespacedHelpers,
   mapState,
   VuexMapStateHelper,
   mapGetters,
   VuexMapGettersHelper,
-  VuexCommit,
-  VuexModulesMutations,
-  VuexMutations,
-  VuexOwnMutations
+  mapMutations, 
+  VuexMapMutationsHelper,
+  mapActions, 
+  VuexMapActionsHelper 
 } from "../types"
 import { Validate } from "../types/helpers"
-import { mapMutations, VuexMapMutationsHelper, VuexMappedMutation, VuexMappedMutations } from "../types/mappers/mutations"
 
 // example store definition
 type FooState = { list: string[] }
@@ -241,6 +238,7 @@ const helpers = {
   mapState: mapState as VuexMapStateHelper<MyStore>,
   mapGetters: mapGetters as VuexMapGettersHelper<MyStore>,
   mapMutations: mapMutations as any as VuexMapMutationsHelper<MyStore>,
+  mapActions: mapActions as any as VuexMapActionsHelper<MyStore>,
 }
 
 const state = helpers.mapState({ 
@@ -270,3 +268,11 @@ mutations.mappedFizz("string") // wrong argument type
 // @ts-expect-error
 mutations.mappedFizz() // no argument
 mutations.mappedBuzz()
+
+const actions = helpers.mapActions({
+  mappedFooLoad: "foo/load",
+  mappedFooRefresh: "foo/refresh",
+})
+
+actions.mappedFooLoad(["string", "string2"])
+actions.mappedFooRefresh()

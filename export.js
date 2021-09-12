@@ -14,6 +14,7 @@ const filesToInclude = [
     "./types/mappers/state.ts",
     "./types/mappers/mutations.ts",
     "./types/mappers/getters.ts",
+    "./types/mappers/actions.ts",
     "./types/mappers/index.ts",
 ]
 

@@ -15,3 +15,5 @@ export declare const createNamespacedHelpers: VuexCreateNamespacedHelpers<any>;
 
 export * from "./state";
 export * from "./getters";
+export * from "./mutations";
+export * from "./actions";

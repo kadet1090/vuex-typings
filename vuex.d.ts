@@ -344,7 +344,10 @@ declare module "vuex" {
     export type VuexMappedMutations<TModule extends VuexModule, TMapping extends VuexMutationsMapping<TModule>> = TMapping extends VuexMutationsObjectMapping<TModule> ? VuexMappedMutationsFromObject<TModule, TMapping>
           : TMapping extends VuexMutationsArrayMapping<TModule> ? VuexMappedMutationsFromArray<TModule, TMapping>
           : never;
-    export type VuexMappedMutation<TModule extends VuexModule, TAction extends VuexMutationsMappingEntry<TModule>> = TAction extends VuexMutationTypes<TModule> ? (payload: VuexMutationPayload<TModule, TAction>) => void
+    type VuexMappedMutationByName<TModule extends VuexModule, TAction extends VuexMutationTypes<TModule>> = true extends IsRequired<VuexMutationPayload<TModule, TAction>>
+         ? (payload: VuexMutationPayload<TModule, TAction>) => void
+         : (payload?: VuexMutationPayload<TModule, TAction>) => void;
+    export type VuexMappedMutation<TModule extends VuexModule, TAction extends VuexMutationsMappingEntry<TModule>> = TAction extends VuexMutationTypes<TModule> ? VuexMappedMutationByName<TModule, TAction>
           : TAction extends VuexMutationsMappingFunctionEntry<TModule, infer TArgs> ? (...args: TArgs) => void 
           : unknown;
     export type VuexMappedMutationsFromObject<TModule extends VuexModule, TMapping extends VuexMutationsObjectMapping<TModule>> = { [TKey in keyof TMapping]: VuexMappedMutation<TModule, TMapping[TKey]> };
@@ -378,6 +381,33 @@ declare module "vuex" {
         <TPath extends VuexModulePath<TModule>, TMapping extends VuexGettersMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedGetters<TModule, TMapping>;
     }
 
+    type VuexActionsObjectMapping<TModule extends VuexModule> = { [mapped: string]: VuexActionsMappingEntry<TModule> };
+    type VuexActionsArrayMapping<TModule extends VuexModule> = (VuexActionTypes<TModule>)[];
+    type VuexActionsMapping<TModule extends VuexModule> = VuexActionsObjectMapping<TModule>
+          | VuexActionsArrayMapping<TModule>;
+    export type VuexActionsMappingFunctionEntry<TModule extends VuexModule, TArgs extends any[] = any[]> = ((commit: VuexDispatch<TModule>, ...args: TArgs) => void);
+    export type VuexActionsMappingEntry<TModule extends VuexModule, TArgs extends any[] = any[]> = VuexActionTypes<TModule>
+          | VuexActionsMappingFunctionEntry<TModule, TArgs>;
+    export type VuexMappedActions<TModule extends VuexModule, TMapping extends VuexActionsMapping<TModule>> = TMapping extends VuexActionsObjectMapping<TModule> ? VuexMappedActionsFromObject<TModule, TMapping>
+          : TMapping extends VuexActionsArrayMapping<TModule> ? VuexMappedActionsFromArray<TModule, TMapping>
+          : never;
+    type VuexMappedActionByName<TModule extends VuexModule, TAction extends VuexActionTypes<TModule>> = true extends IsRequired<VuexActionPayload<TModule, TAction>>
+         ? (payload: VuexActionPayload<TModule, TAction>) => void
+         : (payload?: VuexActionPayload<TModule, TAction>) => void;
+    export type VuexMappedAction<TModule extends VuexModule, TAction extends VuexActionsMappingEntry<TModule>> = TAction extends VuexActionTypes<TModule> ? VuexMappedActionByName<TModule, TAction>
+          : TAction extends VuexActionsMappingFunctionEntry<TModule, infer TArgs> ? (...args: TArgs) => void 
+          : unknown;
+    export type VuexMappedActionsFromObject<TModule extends VuexModule, TMapping extends VuexActionsObjectMapping<TModule>> = { [TKey in keyof TMapping]: VuexMappedAction<TModule, TMapping[TKey]> };
+    export type VuexMappedActionsFromArray<TModule extends VuexModule, TMapping extends VuexActionsArrayMapping<TModule>> = VuexMappedActionsFromObject<TModule, { [TProp in ArrayEntries<TMapping, VuexActionTypes<TModule>>]: TProp }>;
+
+    export interface VuexBoundMapActionsHelper<TModule extends VuexModule> {
+        <TMapping extends VuexActionsObjectMapping<TModule>>(mapping: TMapping): VuexMappedActionsFromObject<TModule, TMapping>;
+    }
+
+    export interface VuexMapActionsHelper<TModule extends VuexModule> extends VuexBoundMapActionsHelper<TModule> {
+        <TPath extends VuexModulePath<TModule>, TMapping extends VuexActionsMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedActions<TModule, TMapping>;
+    }
+
     export interface VuexNamespaceHelpers<TModule extends VuexModule> {
         mapState: VuexBoundMapStateHelper<TModule>;
         mapGetters: VuexBoundMapGettersHelper<TModule>;
@@ -391,8 +421,8 @@ declare module "vuex" {
 type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any 
       ? R 
       : never;
-type AddPrefix<TValue extends string, TPrefix extends string = never> = [TPrefix] extends [never] 
-      ? TValue 
+type AddPrefix<TValue extends string, TPrefix extends string = never> = [TPrefix] extends [never] ? TValue 
+      : [TValue] extends [never] ? TPrefix
       : `${TPrefix}/${TValue}`;
 type OptionalPropertyNames<T> = {
         [K in keyof T]-?: undefined extends T[K] ? K : never;

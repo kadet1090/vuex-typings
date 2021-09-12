@@ -771,11 +771,11 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
    - [x] Hot Update - it's not type safe so it's declared loosely
    - [ ] Composition api helpers
      - [ ] `useStore<TKey extends VuexInjectionKey<TStore>, TStore>(key: TKey): VuexStore<TStore>`
-   - [ ] Helpers
+   - [x] Helpers
      - [x] `mapState<TModule>` in form of `VuexMapStateHelper<TModule>`
      - [x] `mapMutations<TModule>` in form of `VuexMapMutationsHelper<TModule>`
      - [x] `mapGetters<TModule>` in form of `VuexMapGettersHelper<TModule>`
-     - [ ] `mapActions<TModule>`
+     - [x] `mapActions<TModule>` in form of `VuexMapActionsHelper<TModule>`
      - [x] `createNamespaceHelpers<TModule>` in form of `VuexCreateNamespacedHelpers<TModule>`
 
 ## License
