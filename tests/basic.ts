@@ -14,9 +14,11 @@ import {
   mapState,
   VuexMapStateHelper,
   mapGetters,
-  VuexMapGettersHelper
+  VuexMapGettersHelper,
+  VuexCommit
 } from "../types"
 import { Validate } from "../types/helpers"
+import { mapMutations, VuexMapMutationsHelper, VuexMappedMutation, VuexMappedMutations } from "../types/mappers/mutations"
 
 // example store definition
 type FooState = { list: string[] }
@@ -78,8 +80,8 @@ type MyStore = Validate<VuexStoreDefinition, {
     global: string;
   },
   modules: {
-    foo: FooModule,
     bar: BarModule,
+    foo: FooModule,
     anotherFoo: FooModule,
   },
   getters: {
@@ -204,6 +206,7 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
 const helpers = { 
   mapState: mapState as VuexMapStateHelper<MyStore>,
   mapGetters: mapGetters as VuexMapGettersHelper<MyStore>,
+  mapMutations: mapMutations as any as VuexMapMutationsHelper<MyStore>,
 }
 
 const state = helpers.mapState({ 
@@ -214,3 +217,7 @@ const state = helpers.mapState({
 const getters = helpers.mapGetters({ 
   mappedFooFirst: "foo/first"
 });
+
+const mutations = helpers.mapMutations({ mappedFooAdded: "foo/added" })
+
+mutations.mappedFooAdded("string")

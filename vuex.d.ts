@@ -334,8 +334,53 @@ declare module "vuex" {
         <TPath extends VuexModulePath<TModule>, TMapping extends VuexStateMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedState<TModule, TMapping>;
     }
 
+    type VuexMutationsObjectMapping<TModule extends VuexModule> = { [mapped: string]: VuexMutationsMappingEntry<TModule> };
+    type VuexMutationsArrayMapping<TModule extends VuexModule> = (VuexMutationTypes<TModule>)[];
+    type VuexMutationsMapping<TModule extends VuexModule> = VuexMutationsObjectMapping<TModule>
+          | VuexMutationsArrayMapping<TModule>;
+    export type VuexMutationsMappingFunctionEntry<TModule extends VuexModule, TArgs extends any[] = any[]> = ((commit: VuexCommit<TModule>, ...args: TArgs) => void);
+    export type VuexMutationsMappingEntry<TModule extends VuexModule, TArgs extends any[] = any[]> = VuexMutationTypes<TModule>
+          | VuexMutationsMappingFunctionEntry<TModule, TArgs>;
+    export type VuexMappedMutations<TModule extends VuexModule, TMapping extends VuexMutationsMapping<TModule>> = TMapping extends VuexMutationsObjectMapping<TModule> ? VuexMappedMutationsFromObject<TModule, TMapping>
+          : TMapping extends VuexMutationsArrayMapping<TModule> ? VuexMappedMutationsFromArray<TModule, TMapping>
+          : never;
+    export type VuexMappedMutation<TModule extends VuexModule, TAction extends VuexMutationsMappingEntry<TModule>> = TAction extends VuexMutationTypes<TModule> ? (payload: VuexMutationPayload<TModule, TAction>) => void
+          : TAction extends VuexMutationsMappingFunctionEntry<TModule, infer TArgs> ? (...args: TArgs) => void 
+          : unknown;
+    export type VuexMappedMutationsFromObject<TModule extends VuexModule, TMapping extends VuexMutationsObjectMapping<TModule>> = { [TKey in keyof TMapping]: VuexMappedMutation<TModule, TMapping[TKey]> };
+    export type VuexMappedMutationsFromArray<TModule extends VuexModule, TMapping extends VuexMutationsArrayMapping<TModule>> = VuexMappedMutationsFromObject<TModule, { [TProp in ArrayEntries<TMapping, VuexMutationTypes<TModule>>]: TProp }>;
+
+    export interface VuexBoundMapMutationsHelper<TModule extends VuexModule> {
+        <TMapping extends VuexMutationsObjectMapping<TModule>>(mapping: TMapping): VuexMappedMutationsFromObject<TModule, TMapping>;
+    }
+
+    export interface VuexMapMutationsHelper<TModule extends VuexModule> extends VuexBoundMapMutationsHelper<TModule> {
+        <TPath extends VuexModulePath<TModule>, TMapping extends VuexMutationsMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedMutations<TModule, TMapping>;
+    }
+
+    type VuexGettersObjectMapping<TModule extends VuexModule> = { [mapped: string]: VuexGettersMappingEntry<VuexGetters<TModule>> };
+    type VuexGettersArrayMapping<TModule extends VuexModule> = (keyof VuexGetters<TModule>)[];
+    type VuexGettersMapping<TModule extends VuexModule> = VuexGettersObjectMapping<TModule>
+          | VuexGettersArrayMapping<TModule>;
+    export type VuexGettersMappingEntry<TGetters> = keyof TGetters;
+    export type VuexMappedGettersByPropertyName<TModule extends VuexModule, TMapping extends { [TKey in keyof TMapping]: keyof VuexGetters<TModule> }> = { [TKey in keyof TMapping]: () => VuexGetters<TModule>[TMapping[TKey]] };
+    export type VuexMappedGettersFromObject<TModule extends VuexModule, TMapping extends VuexGettersObjectMapping<TModule>> = VuexMappedGettersByPropertyName<TModule, PickByValue<TMapping, keyof VuexGetters<TModule>>>;
+    export type VuexMappedGettersFromArray<TModule extends VuexModule, TMapping extends VuexGettersArrayMapping<TModule>> = VuexMappedGettersFromObject<TModule, { [TProp in ArrayEntries<TMapping, keyof VuexGetters<TModule>>]: TProp }>;
+    export type VuexMappedGetters<TModule extends VuexModule, TMapping extends VuexGettersMapping<TModule>> = TMapping extends VuexGettersObjectMapping<TModule> ? VuexMappedGettersFromObject<TModule, TMapping>
+          : TMapping extends VuexGettersArrayMapping<TModule> ? VuexMappedGettersFromArray<TModule, TMapping>
+          : never;
+
+    export interface VuexBoundMapGettersHelper<TModule extends VuexModule> {
+        <TMapping extends VuexGettersMapping<TModule>>(mapping: TMapping): VuexMappedGetters<TModule, TMapping>;
+    }
+
+    export interface VuexMapGettersHelper<TModule extends VuexModule> extends VuexBoundMapGettersHelper<TModule> {
+        <TPath extends VuexModulePath<TModule>, TMapping extends VuexGettersMapping<TModule>>(path: TPath, mapping: TMapping): VuexMappedGetters<TModule, TMapping>;
+    }
+
     export interface VuexNamespaceHelpers<TModule extends VuexModule> {
         mapState: VuexBoundMapStateHelper<TModule>;
+        mapGetters: VuexBoundMapGettersHelper<TModule>;
     }
 
     export interface VuexCreateNamespacedHelpers<TModule extends VuexModule> {

@@ -773,7 +773,7 @@ type ResultOfFooLoadAction = VuexActionResult<MyStore, "foo/load">; // string[]
      - [ ] `useStore<TKey extends VuexInjectionKey<TStore>, TStore>(key: TKey): VuexStore<TStore>`
    - [ ] Helpers
      - [x] `mapState<TModule>` in form of `VuexMapStateHelper<TModule>`
-     - [ ] `mapMutations<TModule>`
+     - [x] `mapMutations<TModule>` in form of `VuexMapMutationsHelper<TModule>`
      - [x] `mapGetters<TModule>` in form of `VuexMapGettersHelper<TModule>`
      - [ ] `mapActions<TModule>`
      - [x] `createNamespaceHelpers<TModule>` in form of `VuexCreateNamespacedHelpers<TModule>`
